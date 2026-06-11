@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Klausur-Trainer · TheoInf II</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e15; --bg2:#11141d; --surface:#161a25; --surface2:#1c2130;
+  --ink:#e9edf5; --muted:#9aa4b8; --faint:#6b7488;
+  --vi:#8b5cf6; --vi-d:#7c3aed; --vi-bg:rgba(139,92,246,.13); --vi-bg2:rgba(139,92,246,.22);
+  --gr:#22c55e; --gr-d:#16a34a; --gr-bg:rgba(34,197,94,.14); --gr-bg2:rgba(34,197,94,.24);
+  --green:#22c55e; --green-bg:rgba(34,197,94,.14); --green-bg2:rgba(34,197,94,.24);
+  --red:#ef4444; --red-bg:rgba(239,68,68,.14); --red-bg2:rgba(239,68,68,.24);
+  --amber:#f5b942;
+  --border:#252b3b; --border2:#313a4f;
+  --r-sm:8px; --r-md:12px; --r-lg:18px; --r-xl:22px; --r-pill:999px;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+*:focus-visible{outline:2px solid var(--vi);outline-offset:2px;border-radius:4px}
+html{-webkit-text-size-adjust:100%}
+html,body{height:100%}
+body{
+  font-family:'Inter',-apple-system,system-ui,sans-serif;
+  background:radial-gradient(1200px 700px at 82% -10%,rgba(139,92,246,.10),transparent 60%),
+             radial-gradient(900px 600px at -10% 110%,rgba(34,197,94,.08),transparent 55%),var(--bg);
+  background-attachment:fixed;
+  color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;
+  min-height:100vh;padding:16px;overflow-x:hidden;
+}
+.wrap{max-width:760px;margin:0 auto}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;touch-action:manipulation}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+sup,sub{font-size:.72em}
+.prompt,.opt,.fb,.why,.qtag,p,h1,h3{overflow-wrap:break-word;word-break:normal}
+
+/* Header */
+header{display:flex;align-items:center;gap:13px;margin-bottom:16px;flex-wrap:wrap}
+.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-weight:800;font-size:20px;
+  background:linear-gradient(135deg,var(--vi),var(--vi-d));color:#160b2e;box-shadow:0 6px 18px rgba(139,92,246,.34);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.title h1{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.title p{font-size:12px;color:var(--muted)}
+.spacer{flex:1;min-width:8px}
+
+/* Stat chips */
+.stats{display:flex;gap:7px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-pill);padding:6px 11px;font-size:12.5px;font-weight:600}
+.chip .k{color:var(--muted);font-weight:500}
+.chip b{font-variant-numeric:tabular-nums}
+.lvlbar{height:5px;background:var(--border);border-radius:var(--r-pill);overflow:hidden;margin-top:8px}
+.lvlbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gr),var(--gr-d));border-radius:var(--r-pill);transition:width .5s}
+
+/* Panels */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:18px;box-shadow:var(--shadow)}
+.section-h{font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);font-weight:700;margin:22px 4px 10px}
+
+/* Mode grid */
+.modes{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+@media(max-width:560px){.modes{grid-template-columns:1fr}}
+.mode{position:relative;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:15px 15px 15px 18px;transition:transform .14s,border-color .14s,background .14s;overflow:hidden}
+.mode:hover{transform:translateY(-2px);border-color:var(--border2);background:var(--surface2)}
+.mode:active{transform:translateY(0)}
+.mode .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:20px;margin-bottom:9px}
+.mode.vi .ic{background:var(--vi-bg);color:var(--vi)}
+.mode.gr .ic{background:var(--gr-bg);color:var(--gr)}
+.mode h3{font-size:14.5px;font-weight:700;margin-bottom:3px}
+.mode p{font-size:12px;color:var(--muted);line-height:1.45}
+.mode .acc{font-size:11px;color:var(--faint);margin-top:8px;font-weight:600}
+.mode .edge{position:absolute;left:0;top:0;bottom:0;width:3px}
+.mode.vi .edge{background:var(--vi)}.mode.gr .edge{background:var(--gr)}
+
+/* Setup */
+.setup{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-pill);padding:3px}
+.seg button{padding:7px 14px;border-radius:var(--r-pill);font-size:13px;font-weight:600;color:var(--muted);transition:.14s}
+.seg button.on{background:var(--vi);color:#160b2e}
+.label{font-size:12.5px;color:var(--muted);font-weight:600}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:var(--r-md);
+  font-weight:700;font-size:14.5px;transition:transform .12s,filter .12s}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(135deg,var(--vi),var(--vi-d));color:#fff;box-shadow:0 6px 16px rgba(139,92,246,.28)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.green{background:linear-gradient(135deg,var(--gr),var(--gr-d));color:#06210f;box-shadow:0 6px 16px rgba(34,197,94,.25)}
+.btn.ghost{background:var(--surface2);border:1px solid var(--border);color:var(--ink)}
+.btn.sm{padding:9px 14px;font-size:13px}
+.btn.full{width:100%}
+
+/* Training bar */
+.tbar{display:flex;align-items:center;gap:10px;margin-bottom:15px}
+.prog{flex:1;height:8px;background:var(--border);border-radius:var(--r-pill);overflow:hidden}
+.prog>i{display:block;height:100%;background:linear-gradient(90deg,var(--gr),var(--vi));border-radius:var(--r-pill);transition:width .35s}
+.qcount{font-size:12.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.combo{font-size:13px;font-weight:700;color:var(--vi);min-width:42px;text-align:right}
+
+/* Question card */
+.qcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:20px;box-shadow:var(--shadow)}
+.qtag{display:inline-block;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;
+  color:var(--vi);background:var(--vi-bg);padding:4px 10px;border-radius:var(--r-pill);margin-bottom:13px}
+.qtag.gr{color:var(--gr);background:var(--gr-bg)}
+.prompt{font-size:16.5px;font-weight:600;line-height:1.5;margin-bottom:4px}
+.prompt .big{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:600}
+pre.code{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 15px;
+  font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.6;overflow-x:auto;-webkit-overflow-scrolling:touch;color:#cdd6ea;margin:12px 0;white-space:pre}
+pre.code .kw{color:var(--vi);font-weight:600}
+pre.code .cm{color:var(--faint);font-style:italic}
+.recur{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:600;text-align:center;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 12px;margin:13px 0;color:var(--ink);overflow-x:auto;white-space:nowrap}
+.steplbl{font-size:12px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 2px}
+
+/* Options */
+.opts{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.opt{display:flex;align-items:center;gap:11px;text-align:left;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--r-md);padding:13px 14px;font-size:15px;font-weight:600;transition:.12s}
+.opt:hover:not(.locked){border-color:var(--vi);background:var(--bg2)}
+.opt .key{width:25px;height:25px;border-radius:7px;display:grid;place-items:center;background:var(--bg);border:1px solid var(--border2);
+  font-size:12.5px;font-weight:700;color:var(--muted);flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.opt .mono{font-size:15px}
+.opt.locked{cursor:default}
+.opt.correct{border-color:var(--green);background:var(--green-bg)}
+.opt.correct .key{background:var(--green);color:#06210f;border-color:var(--green)}
+.opt.wrong{border-color:var(--red);background:var(--red-bg)}
+.opt.wrong .key{background:var(--red);color:#2a0808;border-color:var(--red)}
+.opt.dim{opacity:.5}
+
+/* Self-check */
+.selftask{font-size:16px;font-weight:600;line-height:1.55;margin-bottom:6px}
+.selfhint{font-size:12.5px;color:var(--faint);margin-bottom:12px}
+textarea.selfin{width:100%;min-height:96px;resize:vertical;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r-md);padding:12px;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:16px;line-height:1.5}
+textarea.selfin::placeholder{color:var(--faint)}
+.sol{margin-top:14px;border:1px solid var(--gr);background:var(--gr-bg);border-radius:var(--r-md);padding:14px 15px;font-size:14px;line-height:1.6}
+.sol h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--gr);margin-bottom:8px}
+.sol p{margin:0 0 8px}
+.sol ul{margin:0 0 8px 18px}
+.sol li{margin-bottom:4px}
+.rate{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+@media(max-width:430px){.rate{grid-template-columns:1fr}}
+.rbtn{padding:12px 8px;border-radius:var(--r-md);font-weight:700;font-size:13.5px;border:1.5px solid var(--border);background:var(--surface2)}
+.rbtn.good{border-color:var(--green);color:var(--green)}
+.rbtn.mid{border-color:var(--amber);color:var(--amber)}
+.rbtn.bad{border-color:var(--red);color:var(--red)}
+.rbtn:active{transform:translateY(1px)}
+
+/* Feedback */
+.fb{margin-top:15px;border-radius:var(--r-md);padding:14px 15px;font-size:14px;line-height:1.55;border:1px solid}
+.fb.ok{background:var(--green-bg);border-color:rgba(34,197,94,.4)}
+.fb.no{background:var(--red-bg);border-color:rgba(239,68,68,.4)}
+.fb.mid{background:rgba(245,185,66,.12);border-color:rgba(245,185,66,.4)}
+.fb .head{font-weight:800;font-size:14px;margin-bottom:5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.fb.ok .head{color:var(--green)}.fb.no .head{color:var(--red)}.fb.mid .head{color:var(--amber)}
+.fb .why{color:var(--ink)}
+.fb .why .hl{color:var(--vi);font-weight:600}
+.fb code{font-family:'JetBrains Mono',monospace;background:var(--bg);padding:1px 6px;border-radius:5px;font-size:13px}
+.nextrow{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap}
+.nextrow .btn{flex:1;min-width:130px}
+
+/* Results */
+.result-big{text-align:center;padding:8px 0 18px}
+.result-big .pct{font-size:54px;font-weight:800;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+.result-big .pct.good{color:var(--green)}.result-big .pct.midc{color:var(--amber)}.result-big .pct.low{color:var(--red)}
+.result-big .sub{color:var(--muted);font-size:14px;margin-top:2px}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 16px}
+.rstat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-md);padding:13px 8px;text-align:center}
+.rstat b{display:block;font-size:23px;font-weight:800;font-variant-numeric:tabular-nums}
+.rstat span{font-size:11.5px;color:var(--muted)}
+.newbadges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+
+/* Badges */
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px}
+.badge{text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 7px;opacity:.4;transition:.2s}
+.badge.un{opacity:1;border-color:var(--vi);background:var(--vi-bg)}
+.badge .e{font-size:25px}
+.badge .n{font-size:10.5px;font-weight:700;margin-top:5px}
+.badge .d{font-size:9.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+.pop{animation:pop .4s}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+.hidden{display:none!important}
+.footer{text-align:center;color:var(--faint);font-size:11.5px;margin-top:24px;line-height:1.7}
+.footer a{color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">Σ</div>
+    <div class="title"><h1>Klausur-Trainer</h1><p>TheoInf II · Laufzeiten · Rekursion · Pseudocode · Hashing</p></div>
+    <div class="spacer"></div>
+    <div class="stats" id="hdrStats"></div>
+  </header>
+
+  <!-- HOME -->
+  <div id="home">
+    <div class="panel" style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div style="flex:1;min-width:170px">
+          <div style="font-size:13px;color:var(--muted);font-weight:600">Level <b id="lvlNum" style="color:var(--gr)">1</b></div>
+          <div class="lvlbar"><i id="lvlFill" style="width:0%"></i></div>
+        </div>
+        <div style="font-size:12px;color:var(--faint)" id="lvlText"></div>
+      </div>
+    </div>
+
+    <div class="section-h">Übungsmodi · 4 Klausurthemen</div>
+    <div class="modes" id="modeGrid"></div>
+
+    <div class="section-h">Auszeichnungen</div>
+    <div class="badges" id="badgeGrid"></div>
+
+    <div class="footer">
+      Offline-Lerntool · Fortschritt lokal im Browser gespeichert<br>
+      Prof. Dr. Veronika Lesch · DHBW Mosbach ·
+      <a id="resetBtn">Fortschritt zurücksetzen</a>
+    </div>
+  </div>
+
+  <!-- TRAINING -->
+  <div id="train" class="hidden">
+    <div class="tbar">
+      <button class="btn ghost sm" id="quitBtn">✕ Beenden</button>
+      <div class="prog"><i id="progFill" style="width:0%"></i></div>
+      <span class="qcount" id="qCount"></span>
+      <span class="combo" id="comboBadge"></span>
+    </div>
+    <div id="qHost"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results" class="hidden">
+    <div class="panel">
+      <div class="result-big">
+        <div class="pct" id="rPct">0%</div>
+        <div class="sub" id="rSub"></div>
+      </div>
+      <div class="newbadges" id="rBadges"></div>
+      <div class="rgrid">
+        <div class="rstat"><b id="rCorrect">0</b><span>richtig</span></div>
+        <div class="rstat"><b id="rTotal">0</b><span>Aufgaben</span></div>
+        <div class="rstat"><b id="rBest">0</b><span>beste Combo</span></div>
+      </div>
+      <div class="nextrow">
+        <button class="btn primary full" id="againBtn">Nochmal</button>
+        <button class="btn ghost full" id="homeBtn">Startseite</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+function $(id){return document.getElementById(id);}
+
+/* ============ Syntax-Highlight für Pseudocode ============ */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(code){
+  var s=esc(code);
+  s=s.replace(/(\/\/[^\n]*)/g,'<span class="cm">$1<\/span>');
+  s=s.replace(/\b(for|while|to|downto|do|if|then|else|return|repeat|until|and|or|not|new|error|nil)\b/g,'<span class="kw">$1<\/span>');
+  return s;
+}
+
+/* ============================================================
+   FRAGEN-BÄNKE  (alle Werte gegen die VL-Folien verifiziert)
+   ============================================================ */
+
+/* ---- 1) DATENSTRUKTUR-OPERATIONEN ---- */
+const DS=[
+ {q:'Laufzeit von <b>ExtractMax</b> in einer als <b>Heap</b> implementierten Prioritätsschlange?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n log n)'],a:1,w:'Maximum (Wurzel) entnehmen, letztes Element nach oben, dann <code>MaxHeapify</code> → entlang eines Wurzel-Blatt-Pfads, denn: Pfadlänge ≤ ⌊log n⌋ → <span class="hl">Θ(log n)</span>.'},
+ {q:'Laufzeit von <b>FindMax</b> in einem Max-Heap?',o:['Θ(log n)','Θ(n)','Θ(1)','Θ(√n)'],a:2,w:'Das Maximum steht <b>immer</b> in der Wurzel <code>A[1]</code> → einfach auslesen → <span class="hl">Θ(1)</span>.'},
+ {q:'Laufzeit von <b>Insert</b> in einem Max-Heap?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n log n)'],a:1,w:'Element hinten anhängen und nach oben „raufreichen" (entlang des Pfads zur Wurzel) → <span class="hl">Θ(log n)</span>.'},
+ {q:'Laufzeit von <b>IncreaseKey</b> in einem Max-Heap?',o:['Θ(1)','Θ(n)','Θ(log n)','Θ(n log n)'],a:2,w:'Schlüssel erhöhen, dann ggf. nach oben wandern bis zur Wurzel → <span class="hl">Θ(log n)</span>.'},
+ {q:'Laufzeit von <b>BuildMaxHeap</b> (Heap aus n Elementen aufbauen)?',o:['Θ(n log n)','Θ(n)','Θ(log n)','Θ(n²)'],a:1,w:'Grob abgeschätzt O(n log n), aber scharf gilt: ein Heap aus n Elementen kann in <span class="hl">Θ(n)</span> Zeit gebaut werden (Beweis über geometrische Reihe).'},
+ {q:'Naive Prioritätsschlange (<b>unsortiertes Feld</b>): Laufzeit von <b>Insert</b>?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n log n)'],a:0,w:'Neues Element einfach hinten anhängen → <span class="hl">Θ(1)</span>. (Dafür kostet ExtractMax/FindMax hier Θ(n).)'},
+ {q:'Naive Prioritätsschlange (unsortiertes Feld): Laufzeit von <b>ExtractMax</b>?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n²)'],a:2,w:'Das Maximum muss erst durch Durchsuchen des ganzen Felds gefunden werden → <span class="hl">Θ(n)</span>.'},
+ {q:'Laufzeit von <b>Push</b> bei einem mit Feld implementierten <b>Stapel</b> (Stack)?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n log n)'],a:0,w:'<code>top = top+1; A[top] = k</code> — konstant viele Schritte → <span class="hl">Θ(1)</span>. (Stack & Queue: alle Operationen O(1).)'},
+ {q:'Laufzeit von <b>Pop</b> beim Stapel?',o:['Θ(n)','Θ(1)','Θ(log n)','Θ(√n)'],a:1,w:'Oberstes Element zurückgeben und <code>top</code> dekrementieren → <span class="hl">Θ(1)</span>.'},
+ {q:'Laufzeit von <b>Enqueue</b> / <b>Dequeue</b> bei einer Schlange (Queue, FIFO)?',o:['Θ(log n)','Θ(1)','Θ(n)','Θ(n log n)'],a:1,w:'Mit head/tail-Zeigern jeweils konstant viele Schritte → <span class="hl">Θ(1)</span>.'},
+ {q:'Doppelt verkettete <b>Liste</b>: Laufzeit von <b>Search(k)</b>?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n log n)'],a:2,w:'Im schlimmsten Fall muss die ganze Liste durchlaufen werden → <span class="hl">Θ(n)</span>. (Insert & Delete dagegen O(1).)'},
+ {q:'Doppelt verkettete Liste: Laufzeit von <b>Insert(k)</b> (vorne einfügen)?',o:['Θ(n)','Θ(log n)','Θ(1)','Θ(n²)'],a:2,w:'Neues Item vorne anhängen, Zeiger umbiegen → <span class="hl">Θ(1)</span>.'},
+ {q:'Binärer Suchbaum: Laufzeit von <b>Search</b>, <b>Insert</b>, <b>Min/Max</b>, <b>Successor</b>?',o:['Θ(log n)','Θ(h) (h = Höhe)','Θ(n)','Θ(1)'],a:1,w:'Alle Operationen folgen einem Wurzel-Blatt-Pfad → <span class="hl">Θ(h)</span> mit h = aktuelle Baumhöhe.'},
+ {q:'Binärer Suchbaum im <b>schlechtesten Fall</b> (entartet zur Liste): Höhe h?',o:['Θ(log n)','Θ(√n)','Θ(n)','Θ(1)'],a:2,w:'Bei ungünstiger Einfügereihenfolge wird der Baum zur Kette → <span class="hl">h ∈ Θ(n)</span>, also alle Operationen Θ(n).'},
+ {q:'<b>Balancierter</b> Suchbaum (z.B. Rot-Schwarz-Baum): Laufzeit aller dynamische-Menge-Operationen?',o:['O(1)','O(log n)','O(n)','O(n log n)'],a:1,w:'Balancieren erzwingt h ∈ O(log n) → alle Operationen in <span class="hl">O(log n)</span>.'},
+ {q:'<b>Sortiertes Feld</b>: Laufzeit von <b>Search</b>?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n log n)'],a:1,w:'Binärsuche halbiert den Suchbereich → <span class="hl">Θ(log n)</span>. (Dafür kostet Insert/Delete hier Θ(n) durchs Verschieben.)'},
+ {q:'<b>Sortiertes Feld</b>: Laufzeit von <b>Insert</b> / <b>Delete</b>?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n²)'],a:2,w:'Zum Einfügen/Löschen müssen alle nachfolgenden Elemente verschoben werden → <span class="hl">Θ(n)</span>.'},
+ {q:'<b>Hashtabelle</b>: erwartete Laufzeit von Search/Insert/Delete (unter passenden Annahmen)?',o:['Θ(log n)','Θ(1)','Θ(n)','Θ(√n)'],a:1,w:'Unter einfachem uniformem Hashing und n = O(m): erwartet <span class="hl">Θ(1)</span>. Aber: Min/Max/Successor werden <b>nicht</b> unterstützt!'},
+ {q:'<b>Inorder-Traversierung</b> eines Binärbaums mit n Knoten?',o:['Θ(log n)','Θ(n)','Θ(n log n)','Θ(h)'],a:1,w:'Jeder Knoten und jede Kante wird konstant oft besucht, #Kanten = n−1 → <span class="hl">Θ(n)</span>.'},
+ {q:'Laufzeit von <b>MaxHeapify(A, i)</b>?',o:['Θ(1)','O(log n)','Θ(n)','Θ(n log n)'],a:1,w:'Das Element „versickert" höchstens bis zu einem Blatt → ≤ Höhe von i ≤ ⌊log n⌋ → <span class="hl">O(log n)</span>.'},
+];
+
+/* ---- 2) ALGORITHMUS-LAUFZEITEN ---- */
+const ALGO=[
+ {q:'<b>Worst-Case</b>-Laufzeit von <b>QuickSort</b>?',o:['Θ(n log n)','Θ(n²)','Θ(n)','Θ(log n)'],a:1,w:'Bei schlechtem Pivot (z.B. bereits sortiertes Feld) entartet die Aufteilung → <span class="hl">Θ(n²)</span>.'},
+ {q:'<b>Average-Case</b>-Laufzeit von QuickSort?',o:['Θ(n²)','Θ(n)','Θ(n log n)','Θ(n³)'],a:2,w:'Im Mittel teilt der Pivot ausgewogen → <span class="hl">Θ(n log n)</span>.'},
+ {q:'Laufzeit von <b>MergeSort</b> (alle Fälle)?',o:['Θ(n²)','Θ(n log n)','Θ(n)','Θ(log n)'],a:1,w:'MergeSort ist in Best-, Average- und Worst-Case garantiert <span class="hl">Θ(n log n)</span>.'},
+ {q:'Laufzeit von <b>HeapSort</b> (alle Fälle)?',o:['Θ(n log n)','Θ(n²)','Θ(n)','Θ(log n)'],a:0,w:'BuildMaxHeap O(n) + (n−1)·ExtractMax (je O(log n)) → <span class="hl">Θ(n log n)</span>, immer.'},
+ {q:'<b>Best-Case</b>-Laufzeit von <b>InsertionSort</b>?',o:['Θ(n²)','Θ(n log n)','Θ(n)','Θ(1)'],a:2,w:'Bei (fast) sortiertem Feld nur ein Vergleich pro Element → <span class="hl">Θ(n)</span>.'},
+ {q:'<b>Worst-Case</b>-Laufzeit von InsertionSort?',o:['Θ(n)','Θ(n²)','Θ(n log n)','Θ(log n)'],a:1,w:'Bei umgekehrt sortiertem Feld muss jedes Element ganz nach vorne → <span class="hl">Θ(n²)</span>.'},
+ {q:'Laufzeit von <b>SelectionSort</b> (alle Fälle)?',o:['Θ(n)','Θ(n log n)','Θ(n²)','unterschiedlich'],a:2,w:'Es werden immer ~n²/2 Vergleiche gemacht, unabhängig von der Eingabe → <span class="hl">Θ(n²)</span> in allen Fällen.'},
+ {q:'Laufzeit von <b>CountingSort</b> (n Zahlen, Werte aus 0..k)?',o:['Θ(n log n)','Θ(n + k)','Θ(n²)','Θ(k log n)'],a:1,w:'Zählen und Zurückschreiben in linearer Zeit → <span class="hl">Θ(n + k)</span>. CountingSort ist stabil.'},
+ {q:'Laufzeit von <b>RadixSort</b> (n s-stellige Zahlen zur Basis b)?',o:['Θ(n log n)','Θ(s·(n + b))','Θ(n²)','Θ(s·n²)'],a:1,w:'Pro Stelle ein stabiles CountingSort → <span class="hl">Θ(s·(n + b))</span> (oft als O(d·(n+k)) geschrieben).'},
+ {q:'<b>Erwartete</b> Laufzeit von <b>BucketSort</b> (gleichverteilte Zufallszahlen)?',o:['Θ(n log n)','Θ(n²)','Θ(n)','Θ(log n)'],a:2,w:'Bei Gleichverteilung landen erwartet O(1) Elemente pro Bucket → erwartet <span class="hl">Θ(n)</span>.'},
+ {q:'Untere Schranke für <b>vergleichsbasiertes</b> Sortieren im schlechtesten Fall?',o:['Ω(n)','Ω(n log n)','Ω(n²)','Ω(log n)'],a:1,w:'Jeder vergleichsbasierte Sortieralgorithmus braucht im schlechtesten Fall <span class="hl">Ω(n log n)</span> Vergleiche. (CountingSort etc. umgehen das, weil sie nicht vergleichen.)'},
+ {q:'Laufzeit der <b>linearen Suche</b> in einem unsortierten Feld?',o:['Θ(log n)','Θ(n)','Θ(1)','Θ(n log n)'],a:1,w:'Im schlimmsten Fall muss jedes Element angesehen werden → <span class="hl">Θ(n)</span>.'},
+ {q:'Laufzeit der <b>binären Suche</b> in einem sortierten Feld?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(√n)'],a:1,w:'Der Suchbereich wird jeweils halbiert → <span class="hl">Θ(log n)</span>.'},
+ {q:'Welcher Algorithmus ist <b>nicht stabil</b>?',o:['MergeSort','InsertionSort','CountingSort','HeapSort'],a:3,w:'HeapSort (und übliches QuickSort, SelectionSort) sind <b>nicht</b> stabil. Stabil: InsertionSort, MergeSort, CountingSort, RadixSort.'},
+ {q:'Welcher Algorithmus arbeitet <b>nicht in situ</b> (braucht mehr als O(1) Extra-Speicher)?',o:['HeapSort','InsertionSort','MergeSort','SelectionSort'],a:2,w:'MergeSort braucht O(n) Hilfsspeicher zum Mischen → <b>nicht</b> in situ. HeapSort, InsertionSort, SelectionSort arbeiten in situ.'},
+ {q:'Ein Algorithmus ruft auf n Elementen <code>MergeSort()</code> auf und gibt danach das mittlere Element zurück. Gesamtlaufzeit?',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(log n)'],a:1,w:'Sortieren dominiert (Θ(n log n)), der Zugriff auf das mittlere Element kostet nur Θ(1) → <span class="hl">Θ(n log n)</span>.'},
+ {q:'Best-Case von <b>SelectionSort</b> (Feld schon sortiert)?',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(1)'],a:2,w:'SelectionSort sucht trotzdem in jedem Schritt das Minimum des Rests → <span class="hl">Θ(n²)</span>, auch bei sortierter Eingabe.'},
+ {q:'Worst-Case von <b>MergeSort</b>?',o:['Θ(n²)','Θ(n log n)','Θ(n)','Θ(log n)'],a:1,w:'MergeSorts Verhalten hängt nicht von der Eingabe ab → auch Worst-Case <span class="hl">Θ(n log n)</span>.'},
+];
+
+/* ---- 3) SCHLEIFEN-ANALYSE ---- */
+const LOOP=[
+ {code:'for i = 1 to n:\n    print(i)',o:['Θ(log n)','Θ(n)','Θ(n²)','Θ(n log n)'],a:1,w:'Eine einfache Schleife, n-mal mit konstanter Arbeit → <span class="hl">Θ(n)</span>.'},
+ {code:'for i = 1 to n:\n    for j = 1 to n:\n        print(i, j)',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(n³)'],a:2,w:'Zwei verschachtelte Schleifen mit je n Durchläufen: n·n → <span class="hl">Θ(n²)</span>.'},
+ {code:'for i = 1 to n:\n    for j = 1 to i:\n        print(i, j)',o:['Θ(n)','Θ(n²)','Θ(n log n)','Θ(n³)'],a:1,w:'Innere Schleife läuft 1+2+…+n = n(n+1)/2 mal (Dreieckssumme) → <span class="hl">Θ(n²)</span>.'},
+ {code:'i = n\nwhile i > 1:\n    print(i)\n    i = i / 2',o:['Θ(log n)','Θ(n)','Θ(√n)','Θ(n log n)'],a:0,w:'i wird halbiert → nach log₂n Schritten bei 1 → <span class="hl">Θ(log n)</span>.'},
+ {code:'for i = 1 to n:\n    j = n\n    while j > 1:\n        j = j / 2',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(log n)'],a:1,w:'Äußere Schleife n-mal, innere jeweils log n-mal → <span class="hl">Θ(n log n)</span>.'},
+ {code:'i = 1\nwhile i < n:\n    print(i)\n    i = i * 2',o:['Θ(n)','Θ(log n)','Θ(√n)','Θ(n log n)'],a:1,w:'i verdoppelt sich → erreicht n nach log₂n Schritten → <span class="hl">Θ(log n)</span>.'},
+ {code:'for i = 1 to n:\n    print(i)\nfor j = 1 to n:\n    print(j)',o:['Θ(n²)','Θ(2n)','Θ(n)','Θ(n log n)'],a:2,w:'Zwei <b>nacheinander</b> ausgeführte Schleifen: n + n = 2n → <span class="hl">Θ(n)</span> (konstanter Faktor fällt weg).'},
+ {code:'for i = 1 to n:\n    for j = 1 to 100:\n        print(i, j)',o:['Θ(n)','Θ(100n)','Θ(n²)','Θ(n log n)'],a:0,w:'Innere Schleife läuft konstant 100-mal, unabhängig von n → <span class="hl">Θ(n)</span>.'},
+ {code:'for i = 1 to n*n:\n    print(i)',o:['Θ(n)','Θ(n²)','Θ(2n)','Θ(n log n)'],a:1,w:'Die Schleife läuft n² mal → <span class="hl">Θ(n²)</span>.'},
+ {code:'// g(i) hat Laufzeit Θ(i)\nfor i = n downto 1:\n    g(i)',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(log n)'],a:2,w:'Summe der Kosten: Σ Θ(i) = Θ(n²). Die Richtung <code>downto</code> ändert nichts → <span class="hl">Θ(n²)</span>.'},
+ {code:'// g(i) hat Laufzeit Θ(i)\ni = n\nwhile i > 1:\n    g(i)\n    i = i / 2',o:['Θ(log n)','Θ(n)','Θ(n log n)','Θ(n²)'],a:1,w:'Kosten: n + n/2 + n/4 + … = 2n (geometrische Reihe) → <span class="hl">Θ(n)</span>. Achtung: <b>nicht</b> Θ(n log n)!'},
+ {code:'for i = 1 to n:\n    for j = 1 to n:\n        for k = 1 to n:\n            print(i,j,k)',o:['Θ(n²)','Θ(n³)','Θ(n² log n)','Θ(3n)'],a:1,w:'Drei verschachtelte Schleifen mit je n → <span class="hl">Θ(n³)</span>.'},
+ {code:'for i = 1 to n:\n    j = 1\n    while j < n:\n        j = j * 2',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(log n)'],a:1,w:'Äußere Schleife n-mal, innere (verdoppelnd) log n-mal → <span class="hl">Θ(n log n)</span>.'},
+];
+
+/* ---- 4) REKURSIONSBAUM-METHODE (geführte Schritte) ---- */
+const TREE=[
+ {rec:'T(n) = 2·T(n/2) + n', sub:'(MergeSort-Rekurrenz)', steps:[
+   {q:'Wie oft muss n durch 2 geteilt werden, bis 1 erreicht ist (= Baumhöhe)?',o:['log₂ n','n','n/2','2ⁿ'],a:0,w:'n → n/2 → n/4 → … → 1 nach <span class="hl">log₂ n</span> Schritten.'},
+   {q:'Wie viele Blätter hat der Baum (= Knoten auf der untersten Ebene)?',o:['log n','n','n²','1'],a:1,w:'Blätter = a^Höhe = 2^(log₂ n) = n^(log₂ 2) = <span class="hl">n</span>.'},
+   {q:'Kosten pro Ebene? (Ebene i hat 2ⁱ Knoten mit je Kosten n/2ⁱ)',o:['steigen zu den Blättern','konstant n auf jeder Ebene','fallen zur Wurzel hin','wachsen quadratisch'],a:1,w:'2ⁱ · (n/2ⁱ) = n — auf <b>jeder</b> Ebene gleich → balanciert (Master-Fall 2).'},
+   {q:'Gesamtlaufzeit T(n)?',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(log n)'],a:1,w:'Kosten pro Ebene n × Anzahl Ebenen log n → <span class="hl">Θ(n log n)</span>.'},
+ ]},
+ {rec:'T(n) = 3·T(n/4) + n²', sub:'(VL-Beispiel)', steps:[
+   {q:'Baumhöhe (wie oft n durch 4 teilen bis 1)?',o:['log₂ n','log₄ n','n/4','4ⁿ'],a:1,w:'n durch 4 teilen → <span class="hl">log₄ n</span> Ebenen.'},
+   {q:'Wie viele Blätter?',o:['n','n^(log₄3) ≈ n^0,79','n²','log₄ n'],a:1,w:'Blätter = 3^(log₄ n) = <span class="hl">n^(log₄ 3) ≈ n^0,79</span>.'},
+   {q:'Kosten pro Ebene i? (3ⁱ Knoten · (n/4ⁱ)²)',o:['(3/16)ⁱ · n² — fallen geometrisch','konstant','steigen zu den Blättern','= n je Ebene'],a:0,w:'3ⁱ·(n/4ⁱ)² = (3/16)ⁱ·n² — fällt geometrisch, die <b>Wurzel dominiert</b>.'},
+   {q:'Gesamtlaufzeit T(n)?',o:['Θ(n^(log₄3))','Θ(n²)','Θ(n² log n)','Θ(n log n)'],a:1,w:'Σ (3/16)ⁱ·n² ist eine konvergente geometrische Reihe ≤ (16/13)·n², plus n^0,79 (Blätter) → die Wurzel dominiert → <span class="hl">Θ(n²)</span>.'},
+ ]},
+ {rec:'T(n) = 4·T(n/2) + n', sub:'', steps:[
+   {q:'Baumhöhe?',o:['log₂ n','log₄ n','n','2ⁿ'],a:0,w:'n durch 2 teilen → <span class="hl">log₂ n</span> Ebenen.'},
+   {q:'Wie viele Blätter?',o:['n','n log n','n²','log n'],a:2,w:'Blätter = 4^(log₂ n) = n^(log₂ 4) = <span class="hl">n²</span>.'},
+   {q:'Kosten pro Ebene i? (4ⁱ Knoten · n/2ⁱ)',o:['konstant n','2ⁱ·n — steigen zu den Blättern','fallen zur Wurzel hin','= n²'],a:1,w:'4ⁱ·(n/2ⁱ) = 2ⁱ·n — wächst nach unten, die <b>Blätter dominieren</b>.'},
+   {q:'Gesamtlaufzeit T(n)?',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(n³)'],a:2,w:'Die unterste Ebene (n² Blätter) dominiert → <span class="hl">Θ(n²)</span> (Master-Fall 1).'},
+ ]},
+ {rec:'T(n) = T(n/2) + 1', sub:'(Binärsuche)', steps:[
+   {q:'Baumhöhe?',o:['log₂ n','n','√n','1'],a:0,w:'n durch 2 teilen bis 1 → <span class="hl">log₂ n</span> Ebenen.'},
+   {q:'Wie viele Blätter? (a = 1 Kind je Knoten)',o:['n','log n','1','n²'],a:2,w:'Blätter = 1^(log₂ n) = n^(log₂ 1) = n^0 = <span class="hl">1</span> — der „Baum" ist eine Kette.'},
+   {q:'Gesamtlaufzeit T(n)?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n log n)'],a:1,w:'log n Ebenen mit je Kosten 1 → <span class="hl">Θ(log n)</span>.'},
+ ]},
+ {rec:'T(n) = 2·T(n/2) + n²', sub:'', steps:[
+   {q:'Baumhöhe?',o:['log₂ n','n','log₄ n','n²'],a:0,w:'n durch 2 teilen → <span class="hl">log₂ n</span> Ebenen.'},
+   {q:'Kosten pro Ebene i? (2ⁱ Knoten · (n/2ⁱ)²)',o:['konstant n je Ebene','n²/2ⁱ — fallen mit steigendem i','steigen zu den Blättern','wachsen quadratisch'],a:1,w:'2ⁱ·(n/2ⁱ)² = n²/2ⁱ — fällt mit jeder tieferen Ebene, die <b>Wurzel dominiert</b>.'},
+   {q:'Gesamtlaufzeit T(n)?',o:['Θ(n log n)','Θ(n²)','Θ(n² log n)','Θ(n³)'],a:1,w:'Σ n²/2ⁱ ≤ 2n² (geometrische Reihe), Wurzelkosten n² dominieren → <span class="hl">Θ(n²)</span>.'},
+ ]},
+ {rec:'T(n) = 3·T(n/3) + n', sub:'', steps:[
+   {q:'Baumhöhe?',o:['log₂ n','log₃ n','n/3','3ⁿ'],a:1,w:'n durch 3 teilen → <span class="hl">log₃ n</span> Ebenen.'},
+   {q:'Wie viele Blätter?',o:['n','log n','n²','3'],a:0,w:'Blätter = 3^(log₃ n) = <span class="hl">n</span>.'},
+   {q:'Gesamtlaufzeit T(n)?',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(log n)'],a:1,w:'3ⁱ·(n/3ⁱ) = n auf jeder Ebene, log₃ n Ebenen → <span class="hl">Θ(n log n)</span> (balanciert).'},
+ ]},
+];
+
+/* ---- 5) MASTER-THEOREM ---- */
+const MASTER=[
+ {rec:'2·T(n/2) + n',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(log n)'],a:1,w:'log₂2 = 1, also n^(log_b a) = n¹. f = n ∈ Θ(n¹) → <b>Fall 2</b> → <span class="hl">Θ(n log n)</span> (MergeSort).'},
+ {rec:'5·T(n/2) + n²',o:['Θ(n²)','Θ(n² log n)','Θ(n<sup>log₂5</sup>)','Θ(n³)'],a:2,w:'log₂5 ≈ 2,32. f = n² ∈ O(n^(log₂5−ε)) → <b>Fall 1</b> → <span class="hl">Θ(n<sup>log₂5</sup>)</span>.'},
+ {rec:'3·T(n/4) + n²',o:['Θ(n<sup>log₄3</sup>)','Θ(n²)','Θ(n² log n)','Θ(n log n)'],a:1,w:'log₄3 ≈ 0,79. f = n² ∈ Ω(n^(0,79+ε)) und Regularität 3·(n/4)² = 3/16·n² ≤ c·n² gilt → <b>Fall 3</b> → <span class="hl">Θ(n²)</span>.'},
+ {rec:'1·T(n/2) + 1',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(n log n)'],a:1,w:'log₂1 = 0, also n⁰ = 1. f = 1 ∈ Θ(1) → <b>Fall 2</b> → <span class="hl">Θ(log n)</span> (Binärsuche).'},
+ {rec:'4·T(n/2) + n',o:['Θ(n)','Θ(n log n)','Θ(n²)','Θ(n² log n)'],a:2,w:'log₂4 = 2. f = n ∈ O(n^(2−ε)) → <b>Fall 1</b> → <span class="hl">Θ(n²)</span>.'},
+ {rec:'2·T(n/2) + n²',o:['Θ(n log n)','Θ(n²)','Θ(n² log n)','Θ(n³)'],a:1,w:'log₂2 = 1. f = n² ∈ Ω(n^(1+ε)), Regularität 2·(n/2)² = n²/2 ≤ c·n² ✓ → <b>Fall 3</b> → <span class="hl">Θ(n²)</span>.'},
+ {rec:'8·T(n/2) + n³',o:['Θ(n³)','Θ(n³ log n)','Θ(n²)','Θ(2ⁿ)'],a:1,w:'log₂8 = 3. f = n³ ∈ Θ(n³) → <b>Fall 2</b> → <span class="hl">Θ(n³ log n)</span>.'},
+ {rec:'9·T(n/3) + n²',o:['Θ(n²)','Θ(n² log n)','Θ(n<sup>log₃9</sup>)','Θ(n³)'],a:1,w:'log₃9 = 2. f = n² ∈ Θ(n²) → <b>Fall 2</b> → <span class="hl">Θ(n² log n)</span>.'},
+ {rec:'2·T(n/2) + n·log n',o:['Θ(n log n)','Θ(n log² n)','Master-Theorem nicht anwendbar','Θ(n²)'],a:2,w:'log₂2 = 1, n^(log_b a) = n. f = n log n liegt <i>zwischen</i> Fall 2 und 3: f ∉ Ω(n^(1+ε)), denn log n wächst langsamer als jedes n^ε → <span class="hl">Master-Theorem nicht anwendbar</span>.'},
+ {rec:'7·T(n/2) + n²',o:['Θ(n²)','Θ(n² log n)','Θ(n<sup>log₂7</sup>)','Θ(n³)'],a:2,w:'log₂7 ≈ 2,81. f = n² ∈ O(n^(log₂7−ε)) → <b>Fall 1</b> → <span class="hl">Θ(n<sup>log₂7</sup>)</span> (Strassen).'},
+ {rec:'16·T(n/2) + n',o:['Θ(n²)','Θ(n⁴)','Θ(n log n)','Θ(n⁴ log n)'],a:1,w:'log₂16 = 4. f = n ∈ O(n^(4−ε)) → <b>Fall 1</b> → <span class="hl">Θ(n⁴)</span>.'},
+];
+
+/* ---- 6) HASHING ---- */
+const HASH=[
+ {q:'Wie ist die <b>Auslastung</b> α einer Hashtabelle definiert?',o:['m/n','n/m','n·m','n − m'],a:1,w:'α = <span class="hl">n/m</span> — Anzahl gespeicherter Elemente n geteilt durch Tabellengröße m.'},
+ {q:'Was beschreibt α beim <b>Hashing mit Verkettung</b> anschaulich?',o:['die Tabellengröße','die durchschnittliche Kettenlänge','die Anzahl der Kollisionen','die Worst-Case-Suchzeit'],a:1,w:'α ist die <span class="hl">durchschnittliche Länge einer Kette</span>.'},
+ {q:'Verkettung, einfaches uniformes Hashing: erwartete Anzahl untersuchter Elemente bei <b>erfolgloser</b> Suche?',o:['1 + α/2','α','1/(1−α)','log α'],a:1,w:'Eine erfolglose Suche durchsucht erwartet <span class="hl">α</span> Elemente (die ganze Kette).'},
+ {q:'Verkettung, einfaches uniformes Hashing: erwartete Anzahl bei <b>erfolgreicher</b> Suche?',o:['α','höchstens 1 + α/2','1/(1−α)','n/2'],a:1,w:'Erfolgreiche Suche: erwartet höchstens <span class="hl">1 + α/2</span> Elemente.'},
+ {q:'<b>Offene Adressierung</b>, uniformes Hashing: erwartete Zugriffe bei <b>erfolgloser</b> Suche?',o:['α','≤ 1/(1−α)','≤ (1/α)·ln(1/(1−α))','1 + α/2'],a:1,w:'Erfolglose Suche: erwartet <span class="hl">≤ 1/(1−α)</span> Zugriffe.'},
+ {q:'Offene Adressierung, uniformes Hashing: erwartete Zugriffe bei <b>erfolgreicher</b> Suche?',o:['≤ 1/(1−α)','α','≤ (1/α)·ln(1/(1−α))','1 + α/2'],a:2,w:'Erfolgreiche Suche: erwartet <span class="hl">≤ (1/α)·ln(1/(1−α))</span> Zugriffe.'},
+ {q:'<b>Worst-Case</b>-Suchzeit beim Hashing mit Verkettung?',o:['Θ(1)','Θ(log n)','Θ(n)','Θ(α)'],a:2,w:'Wenn alle Schlüssel auf denselben Platz hashen (z.B. h(k)=0 ∀k), entsteht eine Kette der Länge n → <span class="hl">Θ(n)</span>.'},
+ {q:'<b>Divisionsmethode</b>: wie lautet die Hashfunktion?',o:['h(k) = ⌊m·(kA mod 1)⌋','h(k) = k mod m','h(k) = k·m','h(k) = (k+i) mod m'],a:1,w:'Divisionsmethode: <span class="hl">h(k) = k mod m</span>.'},
+ {q:'Bei der Divisionsmethode sollte man für m <b>vermeiden</b>:',o:['eine Primzahl','eine Zweierpotenz','eine ungerade Zahl','eine große Zahl'],a:1,w:'Eine <b>Zweierpotenz</b> ist schlecht, denn dann hängt h nur von den niedrigsten Bits ab. Besser: eine Primzahl, entfernt von einer Zweierpotenz → <span class="hl">Zweierpotenz vermeiden</span>.'},
+ {q:'<b>Multiplikationsmethode</b>: wesentlicher Vorteil gegenüber der Divisionsmethode?',o:['immer kollisionsfrei','Wahl von m ist beliebig (auch Zweierpotenz)','keine Hashfunktion nötig','immer O(1) im Worst Case'],a:1,w:'Vorteil: <span class="hl">m frei wählbar</span> (auch Zweierpotenz) → über Bit-Shifts schnell berechenbar. Gut: A ≈ (√5−1)/2.'},
+ {q:'<b>Lineares Sondieren</b> h(k,i) = (h₀(k) + i) mod m — typisches Problem?',o:['sekundäres Clustering','primäres Clustering','Tabelle läuft nie voll','keine Permutation'],a:1,w:'Es bilden sich schnell große zusammenhängende Blöcke besetzter Plätze → <span class="hl">primäres Clustering</span>.'},
+ {q:'<b>Quadratisches Sondieren</b> — typisches Problem?',o:['primäres Clustering','sekundäres Clustering','funktioniert nie','immer Θ(n)'],a:1,w:'Schlüssel mit gleichem h₀(k) haben dieselbe Sondierfolge → <span class="hl">sekundäres Clustering</span>.'},
+ {q:'<b>Doppeltes Hashing</b>: wie lautet die Sondierfolge?',o:['(h₀(k) + i) mod m','(h₀(k) + c₁i + c₂i²) mod m','(h₀(k) + i·h₁(k)) mod m','(h₀(k) · i) mod m'],a:2,w:'Doppeltes Hashing: <span class="hl">h(k,i) = (h₀(k) + i·h₁(k)) mod m</span>.'},
+ {q:'Damit die Sondierfolge beim doppelten Hashing <b>alle</b> Plätze durchläuft, muss gelten:',o:['h₁(k) und m sind teilerfremd (ggT = 1)','m ist gerade','h₁(k) = h₀(k)','α = 1'],a:0,w:'Es muss <span class="hl">ggT(h₁(k), m) = 1</span> gelten (teilerfremd), sonst werden nicht alle Einträge genau einmal besucht.'},
+ {q:'Wie viele verschiedene Sondierfolgen sind beim <b>doppelten Hashing</b> möglich?',o:['m','m²','m!','n'],a:1,w:'Die Folge hängt zweifach von k ab → potentiell <span class="hl">m²</span> Sondierfolgen (bei linearem/quadratischem Sondieren nur m).'},
+ {q:'Maximale Auslastung α bei <b>offener Adressierung</b>?',o:['α ≤ 1','α beliebig','α ≤ m','α ≤ n'],a:0,w:'Alle Elemente liegen direkt in der Tabelle → sie kann volllaufen → <span class="hl">α ≤ 1</span>.'},
+ {q:'Laufzeit von Insert/Delete/Search bei <b>direkter Adressierung</b> (kleines Universum)?',o:['Θ(log n)','O(1), auch im schlechtesten Fall','Θ(n)','erwartet O(1)'],a:1,w:'Direktes Indizieren des Arrays über den Schlüssel → <span class="hl">O(1) sogar im Worst Case</span>.'},
+ {q:'Unter welcher Bedingung laufen die Wörterbuch-Operationen bei Verkettung in erwartet konstanter Zeit?',o:['m = O(n)','n = O(m), d.h. α konstant','α = 1','n = m²'],a:1,w:'Falls <span class="hl">n = O(m)</span> (α konstant), sind alle Operationen erwartet Θ(1).'},
+];
+
+/* ---- 7) PSEUDOCODE & BESCHREIBEN (Selbst-Check) ---- */
+const SELF=[
+ {tag:'Heap', task:'Beschreibe in Worten, was <b>MaxHeapify(A, i)</b> tut — und nenne die Laufzeit.',
+  desc:'<p>MaxHeapify stellt die Max-Heap-Eigenschaft am Knoten i wieder her, <b>unter der Annahme</b>, dass die beiden Teilbäume (links/rechts) bereits Max-Heaps sind.</p><ul><li>Bestimme das Maximum von A[i], A[left(i)], A[right(i)].</li><li>Ist ein Kind größer, vertausche A[i] mit diesem Kind.</li><li>Rufe MaxHeapify rekursiv auf der getauschten Position auf („versickern" nach unten).</li></ul><p>Laufzeit: O(log n), denn das Element wandert höchstens bis zu einem Blatt (≤ Höhe).</p>',
+  code:'MaxHeapify(int A[ ], index i)\n  l = left(i); r = right(i)\n  if l <= A.heap-size and A[l] > A[i] then\n      largest = l\n  else largest = i\n  if r <= A.heap-size and A[r] > A[largest] then\n      largest = r\n  if largest != i then\n      swap(A, i, largest)\n      MaxHeapify(A, largest)'},
+ {tag:'Stack', task:'Schreibe den Pseudocode für <b>Pop()</b> eines Stapels (Feld A, Zeiger top). Fange underflow ab.',
+  desc:'<p>Pop nimmt das oberste Element (LIFO) und gibt es zurück.</p>',
+  code:'key Pop()\n  if Empty() then error "underflow"\n  else\n      top = top - 1\n      return A[top + 1]'},
+ {tag:'Heap / Sortieren', task:'Schreibe den Pseudocode für <b>HeapSort(A)</b>. Du darfst <code>BuildMaxHeap</code> und <code>ExtractMax</code> aufrufen.',
+  desc:'<p>Idee: ExtractMax gibt das rechteste Heap-Element frei — dort speichern wir das extrahierte Maximum. Laufzeit O(n) + (n−1)·O(log n) = O(n log n).</p>',
+  code:'HeapSort(int[ ] A)\n  BuildMaxHeap(A)\n  for i = A.length downto 2 do\n      A[i] = ExtractMax()'},
+ {tag:'BST', task:'Beschreibe das <b>Löschen eines Knotens z</b> in einem binären Suchbaum (drei Fälle).',
+  desc:'<ul><li><b>Fall 1 — z hat keine Kinder:</b> Setze den entsprechenden Zeiger von z.p (links/rechts) auf nil und lösche z.</li><li><b>Fall 2 — z hat ein Kind x:</b> Setze den Zeiger von z.p, der auf z zeigt, auf x; setze x.p = z.p. Lösche z.</li><li><b>Fall 3 — z hat zwei Kinder:</b> Setze y = Successor(z), kopiere y.key nach z.key, und lösche dann y (das fällt unter Fall 1 oder 2).</li></ul>'},
+ {tag:'BST', task:'Schreibe <b>iterativ</b> die Methode <b>Minimum(x)</b> für einen binären Suchbaum.',
+  desc:'<p>Wegen der BST-Eigenschaft steht das Minimum ganz links: laufe von der Wurzel immer nach links.</p>',
+  code:'Node Minimum(Node x = root)\n  if x == nil then return nil\n  while x.left != nil do\n      x = x.left\n  return x'},
+ {tag:'Hashing', task:'Beschreibe in Worten <b>Search(k)</b> beim <b>Hashing mit Verkettung</b> und nenne die erwartete Laufzeit.',
+  desc:'<p>Berechne den Hashwert h(k) → das liefert den Index der Liste T[h(k)]. Durchsuche diese Liste nach dem Schlüssel k (Listen-Search). Erwartete Laufzeit unter einfachem uniformem Hashing: Θ(1 + α). Worst Case: Θ(n).</p>',
+  code:'ptr Search(key k)\n  return T[h(k)].Search(k)   // Listen-Search in der Kette'},
+ {tag:'Heap', task:'Schreibe den Pseudocode für <b>BuildMaxHeap(A)</b>.',
+  desc:'<p>Wende MaxHeapify bottom-up auf alle inneren Knoten an. Die Blätter (zweite Hälfte des Feldes) sind bereits triviale Heaps. Laufzeit: Θ(n).</p>',
+  code:'BuildMaxHeap(int A[ ])\n  A.heap-size = A.length\n  for i = floor(A.length/2) downto 1 do\n      MaxHeapify(A, i)'},
+ {tag:'BST', task:'Beschreibe die <b>Inorder-Traversierung</b> und wofür sie bei einem BST nützlich ist.',
+  desc:'<p>Rekursiv: 1) linken Teilbaum durchlaufen, 2) Schlüssel der Wurzel ausgeben, 3) rechten Teilbaum durchlaufen. Bei einem binären Suchbaum gibt das die Schlüssel <b>sortiert</b> aus. Laufzeit Θ(n).</p>',
+  code:'InorderTreeWalk(Node x = root)\n  if x != nil then\n      InorderTreeWalk(x.left)\n      gib x.key aus\n      InorderTreeWalk(x.right)'},
+ {tag:'Methode', task:'Beschreibe in Worten, wie die <b>Rekursionsbaummethode</b> funktioniert.',
+  desc:'<ul><li>Zeichne den Rekursionsbaum: Wurzel = T(n), ihre a Kinder = T(n/b), deren Kinder = T(n/b²), … bis zu den Blättern T(1).</li><li>Bestimme die <b>Höhe</b>: wie oft muss n durch b geteilt werden, bis 1 erreicht ist → log_b n.</li><li>Bestimme pro Ebene die <b>Anzahl Knoten</b> (aⁱ) und die <b>Kosten pro Knoten</b> (f(n/bⁱ)) → Kosten je Ebene.</li><li>Summiere die Kosten über alle Ebenen (oft eine geometrische Reihe) und addiere die Blattkosten n^(log_b a).</li></ul><p>Ergebnis: meist dominiert entweder die Wurzel, die Blätter, oder alle Ebenen tragen gleich bei.</p>'},
+ {tag:'Klausur-Stil', task:'Schreibe Pseudocode, der ein Feld A sortiert und dann den <b>Median</b> zurückgibt. Du darfst <code>MergeSort()</code> aufrufen.',
+  desc:'<p>Erst sortieren (Θ(n log n)), dann auf das mittlere Element zugreifen (Θ(1)).</p>',
+  code:'Median(int[ ] A)\n  MergeSort(A)               // sortiert A aufsteigend\n  return A[ceil(A.length / 2)]   // mittleres Element'},
+ {tag:'Klausur-Stil', task:'Schreibe Pseudocode, der zählt, wie viele Elemente in A <b>echt größer</b> als x sind. Gib die Laufzeit an.',
+  desc:'<p>Einmal linear durchlaufen und zählen → Θ(n).</p>',
+  code:'CountGreater(int[ ] A, int x)\n  c = 0\n  for i = 1 to A.length do\n      if A[i] > x then c = c + 1\n  return c\n  // Laufzeit: Theta(n)'},
+];
+
+/* ============ MODI ============ */
+const MODES={
+ ds:    {name:'DS-Operationen', icon:'🗄️', col:'vi', kind:'mc',    bank:DS,     desc:'Laufzeiten der Operationen: Heap, BST, Stack, Queue, Liste, Hashtabelle, sortiertes Feld.'},
+ algo:  {name:'Algorithmus-Laufzeiten', icon:'⚡', col:'gr', kind:'mc', bank:ALGO, desc:'Best / Average / Worst-Case der Sortier- und Suchverfahren, Stabilität & in situ.'},
+ loop:  {name:'Schleifen-Analyse', icon:'🔁', col:'vi', kind:'mc', code:true, bank:LOOP, desc:'Lies den Pseudocode und bestimme die Θ-Laufzeit.'},
+ tree:  {name:'Rekursionsbaum-Methode', icon:'🌳', col:'gr', kind:'steps', bank:TREE, desc:'Ebenen, Blätter, Kosten pro Ebene & Gesamtkosten — Schritt für Schritt.'},
+ master:{name:'Master-Theorem', icon:'📐', col:'vi', kind:'mc', bank:MASTER, desc:'a·T(n/b)+f(n): Fall erkennen und die Laufzeit bestimmen.', recur:true},
+ hash:  {name:'Hashing', icon:'#️⃣', col:'gr', kind:'mc', bank:HASH, desc:'Auslastung, Sondierfolgen, erwartete Suchzeiten, Hashfunktionen, Clustering.'},
+ pseudo:{name:'Pseudocode & Beschreiben', icon:'✍️', col:'vi', kind:'self', bank:SELF, desc:'Selbst lösen, Musterlösung aufdecken, ehrlich bewerten (Selbst-Check).'},
+};
+
+/* ============ BADGES ============ */
+const BADGES=[
+ {id:'first', e:'🚀', n:'Erster Lauf', d:'Erste Session beendet', chk:s=>s.sessions>=1},
+ {id:'perfect', e:'💯', n:'Makellos', d:'Eine Session zu 100%', chk:s=>s.hadPerfect},
+ {id:'combo10', e:'🔥', n:'Combo 10', d:'10 in Folge richtig', chk:s=>s.bestComboEver>=10},
+ {id:'c100', e:'🎯', n:'Hundert', d:'100 richtige Antworten', chk:s=>s.totalCorrect>=100},
+ {id:'allmodes', e:'🧭', n:'Allrounder', d:'Jeden Modus gespielt', chk:s=>Object.keys(MODES).every(m=>s.perMode[m]&&s.perMode[m].answered>0)},
+ {id:'lvl5', e:'⭐', n:'Level 5', d:'Level 5 erreicht', chk:s=>levelInfo(s.xp).level>=5},
+ {id:'streak3', e:'📅', n:'3-Tage-Streak', d:'An 3 Tagen geübt', chk:s=>s.dayStreak>=3},
+ {id:'hash20', e:'#️⃣', n:'Hash-Profi', d:'20 Hashing-Fragen richtig', chk:s=>s.perMode.hash&&s.perMode.hash.correct>=20},
+];
+
+/* ============ STATE ============ */
+const KEY='theoKlausurTrainer_v1';
+const defState={xp:0,totalCorrect:0,sessions:0,dayStreak:0,lastPlay:'',bestComboEver:0,hadPerfect:false,perMode:{},badges:[]};
+let state=load();
+function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign({},defState,JSON.parse(r));}catch(e){}return Object.assign({},defState);}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+function levelInfo(xp){let lvl=1,need=100,acc=0;while(xp>=acc+need){acc+=need;lvl++;need=100+(lvl-1)*25;}return{level:lvl,into:xp-acc,need:need};}
+
+/* ============ SESSION ============ */
+let sess=null;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startSession(mode,count){
+ const m=MODES[mode];
+ let pool=shuffle(m.bank);
+ if(count!==Infinity && count<pool.length) pool=pool.slice(0,count);
+ else if(count!==Infinity){ // need more than bank → repeat
+   while(pool.length<count) pool=pool.concat(shuffle(m.bank));
+   pool=pool.slice(0,count);
+ }
+ sess={mode:mode,pool:pool,i:0,count:(count===Infinity?Infinity:pool.length),correct:0,combo:0,bestCombo:0,startXp:state.xp,_lastGain:0};
+ $('home').classList.add('hidden');$('results').classList.add('hidden');$('train').classList.remove('hidden');
+ nextQuestion();
+}
+function nextQuestion(){
+ if(sess.count!==Infinity && sess.i>=sess.count){endSession();return;}
+ const m=MODES[sess.mode];
+ let item;
+ if(sess.count===Infinity){ if(!sess.pool.length||sess._p===undefined||sess._p>=sess.pool.length){sess.pool=shuffle(m.bank);sess._p=0;} item=sess.pool[sess._p++]; }
+ else item=sess.pool[sess.i];
+ sess.i++;
+ updateBar();
+ if(m.kind==='mc') renderMC(item,m);
+ else if(m.kind==='steps') renderSteps(item,m);
+ else if(m.kind==='self') renderSelf(item,m);
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function updateBar(){
+ const tag=MODES[sess.mode].col==='gr'?'':'';
+ $('qCount').textContent=sess.count===Infinity?('#'+sess.i):(sess.i+' / '+sess.count);
+ $('progFill').style.width=sess.count===Infinity?'100%':Math.round((sess.i-1)/sess.count*100)+'%';
+ $('comboBadge').textContent=sess.combo>=2?('🔥 '+sess.combo):'';
+}
+
+/* ---- scoring ---- */
+function answered(ok,mul){
+ mul=mul===undefined?1:mul;
+ const m=MODES[sess.mode];
+ if(!state.perMode[sess.mode])state.perMode[sess.mode]={answered:0,correct:0};
+ state.perMode[sess.mode].answered++;
+ if(ok){
+   sess.correct++;state.totalCorrect++;sess.combo++;
+   if(sess.combo>sess.bestCombo)sess.bestCombo=sess.combo;
+   if(sess.combo>state.bestComboEver)state.bestComboEver=sess.combo;
+   state.perMode[sess.mode].correct++;
+   const gain=Math.round((10+Math.min(sess.combo,6)*2)*mul);
+   sess._lastGain=gain;state.xp+=gain;
+ } else { sess.combo=0; sess._lastGain=0; }
+ save();renderHeader();
+}
+
+/* ---- MC rendering ---- */
+function renderMC(q,m){
+ const host=$('qHost');
+ const tagcls=m.col==='gr'?'gr':'';
+ let promptHtml;
+ if(m.recur){ promptHtml='<div class="recur">T(n) = '+q.rec+'</div>'; }
+ else if(m.code){ promptHtml='<div class="prompt">Bestimme die Laufzeit:</div><pre class="code">'+hl(q.code)+'</pre>'; }
+ else { promptHtml='<div class="prompt">'+q.q+'</div>'; }
+ const keys=['A','B','C','D','E'];
+ host.innerHTML='<div class="qcard"><span class="qtag '+tagcls+'">'+m.icon+' '+m.name+'</span>'+promptHtml+
+   '<div class="opts" id="opts"></div><div id="fbZone"></div></div>';
+ const opts=$('opts');
+ q.o.forEach((txt,i)=>{
+   const b=document.createElement('button');b.className='opt';
+   b.innerHTML='<span class="key">'+keys[i]+'</span><span class="mono">'+txt+'</span>';
+   b.onclick=()=>{
+     const ok=(i===q.a);
+     opts.querySelectorAll('.opt').forEach((el,j)=>{el.classList.add('locked');
+       if(q.o[j]===undefined)return;
+       if(j===q.a)el.classList.add('correct');
+       else if(j===i)el.classList.add('wrong');
+       else el.classList.add('dim');});
+     answered(ok);showFeedback(ok?'ok':'no',ok?'✓ Richtig':'✗ Falsch',q.w);
+   };
+   opts.appendChild(b);
+ });
+}
+
+/* ---- STEPS rendering (Rekursionsbaum) ---- */
+function renderSteps(item,m){
+ const host=$('qHost');
+ host.innerHTML='<div class="qcard"><span class="qtag gr">'+m.icon+' '+m.name+'</span>'+
+   '<div class="recur">'+item.rec+'</div>'+
+   (item.sub?'<div class="selfhint" style="text-align:center;margin-top:-6px">'+item.sub+'</div>':'')+
+   '<div id="stepZone"></div><div id="fbZone"></div></div>';
+ let s=0, allOk=true;
+ const keys=['A','B','C','D'];
+ function drawStep(){
+   const st=item.steps[s];
+   const zone=$('stepZone');
+   const block=document.createElement('div');
+   block.innerHTML='<div class="steplbl">Schritt '+(s+1)+' / '+item.steps.length+'</div>'+
+     '<div class="prompt" style="font-size:15.5px">'+st.q+'</div><div class="opts"></div><div class="mini"></div>';
+   zone.appendChild(block);
+   const opts=block.querySelector('.opts');
+   st.o.forEach((txt,i)=>{
+     const b=document.createElement('button');b.className='opt';
+     b.innerHTML='<span class="key">'+keys[i]+'</span><span class="mono">'+txt+'</span>';
+     b.onclick=()=>{
+       const ok=(i===st.a); if(!ok)allOk=false;
+       opts.querySelectorAll('.opt').forEach((el,j)=>{el.classList.add('locked');
+         if(j===st.a)el.classList.add('correct');else if(j===i)el.classList.add('wrong');else el.classList.add('dim');});
+       const mini=block.querySelector('.mini');
+       mini.innerHTML='<div class="fb '+(ok?'ok':'no')+'" style="margin-top:12px"><div class="why">'+st.w+'</div>'+
+         '<div class="nextrow"><button class="btn '+(s+1<item.steps.length?'ghost':'green')+' full" id="stepNext">'+
+         (s+1<item.steps.length?'Nächster Schritt →':'Aufgabe abschließen ✓')+'</button></div></div>';
+       block.querySelector('#stepNext').onclick=()=>{
+         s++;
+         if(s<item.steps.length){drawStep();block.querySelector('#stepNext').remove();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});}
+         else{ answered(allOk); finishStepItem(allOk); }
+       };
+     };
+     opts.appendChild(b);
+   });
+ }
+ function finishStepItem(ok){
+   showFeedback(ok?'ok':'mid', ok?'✓ Alle Schritte richtig':'~ Aufgabe abgeschlossen',
+     ok?'Stark — du beherrschst die Rekursionsbaummethode für diese Rekurrenz.':'Schau dir die Schritte oben nochmal an, in denen es gehakt hat. Wichtig ist das Muster: Höhe → Blätter → Kosten pro Ebene → dominierende Ebene.');
+ }
+ drawStep();
+}
+
+/* ---- SELF-CHECK rendering ---- */
+function renderSelf(item,m){
+ const host=$('qHost');
+ host.innerHTML='<div class="qcard"><span class="qtag">'+m.icon+' '+item.tag+'</span>'+
+   '<div class="selftask">'+item.task+'</div>'+
+   '<div class="selfhint">Löse es zuerst selbst — auf Papier oder im Feld unten. Dann Musterlösung aufdecken und ehrlich bewerten.</div>'+
+   '<textarea class="selfin" id="selfin" placeholder="Optional: hier tippen…"></textarea>'+
+   '<div class="nextrow"><button class="btn primary full" id="revealBtn">Musterlösung zeigen</button></div>'+
+   '<div id="solZone"></div><div id="fbZone"></div></div>';
+ $('revealBtn').onclick=()=>{
+   $('revealBtn').parentElement.remove();
+   let sol='<div class="sol"><h4>Musterlösung</h4>'+(item.desc||'');
+   if(item.code) sol+='<pre class="code">'+hl(item.code)+'</pre>';
+   sol+='</div>';
+   sol+='<div class="steplbl" style="color:var(--vi)">Wie lief es bei dir?</div>'+
+     '<div class="rate"><button class="rbtn good" data-r="2">✓ Konnte ich</button>'+
+     '<button class="rbtn mid" data-r="1">~ Teilweise</button>'+
+     '<button class="rbtn bad" data-r="0">✗ Nicht</button></div>';
+   $('solZone').innerHTML=sol;
+   window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+   $('solZone').querySelectorAll('.rbtn').forEach(b=>{
+     b.onclick=()=>{
+       const r=+b.dataset.r;
+       $('solZone').querySelectorAll('.rbtn').forEach(x=>x.disabled=true);
+       b.style.outline='2px solid currentColor';
+       if(r===2){answered(true,1);showFeedback('ok','✓ Konnte ich','Sehr gut — diese Aufgabe sitzt. Weiter so.');}
+       else if(r===1){answered(true,0.5);showFeedback('mid','~ Teilweise','Fast — markiere dir die Stelle, die noch unsicher war, und wiederhole sie später gezielt.');}
+       else{answered(false,1);showFeedback('no','✗ Noch nicht','Kein Problem — schreib die Musterlösung einmal von Hand ab und versuche die Aufgabe in der nächsten Runde erneut.');}
+     };
+   });
+ };
+}
+
+/* ---- Feedback ---- */
+function showFeedback(kind,head,why){
+ const fb=document.createElement('div');
+ fb.className='fb '+kind;
+ const gain=(kind==='ok'&&sess._lastGain)?(' · +'+sess._lastGain+' XP'):'';
+ const last=(sess.count!==Infinity && sess.i>=sess.count);
+ fb.innerHTML='<div class="head">'+head+gain+'</div><div class="why">'+why+'</div>'+
+   '<div class="nextrow"><button class="btn '+(kind==='ok'?'green':'primary')+' full" id="nextBtn">'+(last?'Ergebnis ansehen':'Weiter →')+'</button></div>';
+ $('fbZone').appendChild(fb);
+ const nb=$('nextBtn');nb.onclick=nextQuestion;
+ fb.scrollIntoView({behavior:'smooth',block:'nearest'});
+ try{nb.focus({preventScroll:true});}catch(e){}
+}
+
+/* ---- End ---- */
+function endSession(){
+ state.sessions++;
+ const total=sess.i-(sess.count===Infinity?0:0);
+ const denom=sess.i>0?sess.i:1;
+ const pct=Math.round(sess.correct/denom*100);
+ if(sess.i>0 && sess.correct===sess.i && sess.count!==Infinity) state.hadPerfect=true;
+ const before=state.badges.slice();
+ BADGES.forEach(b=>{if(!state.badges.includes(b.id)&&b.chk(state))state.badges.push(b.id);});
+ const newOnes=state.badges.filter(id=>!before.includes(id));
+ updateStreak();save();
+ $('train').classList.add('hidden');$('results').classList.remove('hidden');
+ const pe=$('rPct');pe.textContent=pct+'%';pe.className='pct '+(pct>=80?'good':pct>=50?'midc':'low');
+ $('rSub').textContent=MODES[sess.mode].name+' · '+(pct>=80?'Stark!':pct>=50?'Solide — dranbleiben.':'Übung macht den Meister.');
+ $('rCorrect').textContent=sess.correct;$('rTotal').textContent=sess.i;$('rBest').textContent=sess.bestCombo;
+ $('rBadges').innerHTML=newOnes.map(id=>{const b=BADGES.find(x=>x.id===id);return '<div class="badge un pop"><div class="e">'+b.e+'</div><div class="n">'+b.n+'</div></div>';}).join('');
+ renderHeader();window.scrollTo({top:0,behavior:'smooth'});
+}
+function updateStreak(){
+ const today=new Date().toISOString().slice(0,10);
+ if(state.lastPlay===today)return;
+ const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+ state.dayStreak=(state.lastPlay===y)?state.dayStreak+1:1;
+ state.lastPlay=today;
+}
+
+/* ============ HOME RENDER ============ */
+let setupCount=10;
+function renderHeader(){
+ const li=levelInfo(state.xp);
+ $('hdrStats').innerHTML=
+   '<div class="chip">⭐ <b>'+state.xp+'</b><span class="k">XP</span></div>'+
+   '<div class="chip">🔥 <b>'+state.dayStreak+'</b><span class="k">Streak</span></div>'+
+   '<div class="chip">✓ <b>'+state.totalCorrect+'</b><span class="k">richtig</span></div>';
+ $('lvlNum').textContent=li.level;
+ $('lvlFill').style.width=Math.round(li.into/li.need*100)+'%';
+ $('lvlText').textContent=li.into+' / '+li.need+' XP zum nächsten Level';
+}
+function renderModes(){
+ const grid=$('modeGrid');grid.innerHTML='';
+ Object.entries(MODES).forEach(([id,m])=>{
+   const pm=state.perMode[id];
+   const acc=pm&&pm.answered?(Math.round(pm.correct/pm.answered*100)+'% · '+pm.answered+' Aufgaben'):'noch nicht geübt';
+   const el=document.createElement('button');el.className='mode '+m.col;
+   el.innerHTML='<span class="edge"></span><div class="ic">'+m.icon+'</div><h3>'+m.name+'</h3><p>'+m.desc+'</p><div class="acc">'+acc+'</div>';
+   el.onclick=()=>openSetup(id);
+   grid.appendChild(el);
+ });
+}
+function renderBadges(){
+ $('badgeGrid').innerHTML=BADGES.map(b=>{const un=state.badges.includes(b.id);
+   return '<div class="badge '+(un?'un':'')+'"><div class="e">'+b.e+'</div><div class="n">'+b.n+'</div><div class="d">'+b.d+'</div></div>';}).join('');
+}
+function openSetup(mode){
+ const m=MODES[mode];
+ $('home').classList.add('hidden');$('results').classList.add('hidden');$('train').classList.remove('hidden');
+ $('progFill').style.width='0%';$('qCount').textContent='';$('comboBadge').textContent='';
+ const host=$('qHost');
+ const tagcls=m.col==='gr'?'gr':'';
+ host.innerHTML='<div class="qcard"><span class="qtag '+tagcls+'">'+m.icon+' '+m.name+'</span>'+
+   '<div class="prompt" style="margin-bottom:4px">'+m.icon+' '+m.name+'</div>'+
+   '<p style="color:var(--muted);font-size:14px;line-height:1.5">'+m.desc+'</p>'+
+   '<div class="setup"><span class="label">Anzahl Aufgaben:</span><div class="seg" id="cntSeg">'+
+   '<button data-c="10" class="on">10</button><button data-c="20">20</button><button data-c="0">Endlos</button></div></div>'+
+   '<div class="nextrow"><button class="btn primary full" id="goBtn">Los geht\u2019s →</button></div></div>';
+ setupCount=10;
+ host.querySelectorAll('#cntSeg button').forEach(b=>b.onclick=()=>{
+   host.querySelectorAll('#cntSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+   setupCount=+b.dataset.c;});
+ $('goBtn').onclick=()=>startSession(mode,setupCount===0?Infinity:setupCount);
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function goHome(){
+ $('train').classList.add('hidden');$('results').classList.add('hidden');$('home').classList.remove('hidden');
+ renderHeader();renderModes();renderBadges();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ============ EVENTS ============ */
+$('quitBtn').onclick=()=>{ if(sess&&sess.i>0&&!(sess.count!==Infinity&&sess.i>sess.count)){ if(sess.count===Infinity){endSession();}else{endSession();} } else goHome(); };
+$('homeBtn').onclick=goHome;
+$('againBtn').onclick=()=>openSetup(sess.mode);
+$('resetBtn').onclick=()=>{if(confirm('Wirklich den gesamten Fortschritt (XP, Streak, Badges) löschen?')){state=Object.assign({},defState,{perMode:{},badges:[]});save();goHome();}};
+
+/* ============ INIT ============ */
+goHome();
+</script>
+</body>
+</html>
