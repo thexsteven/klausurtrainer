@@ -1,15 +1,19 @@
 # Icon-Konvertierung – `icon.svg` → PNG
 
-Das Master-Icon ist [`icon.svg`](./icon.svg) (skalierbar, `viewBox="0 0 512 512"`, self-contained,
-keine externen Ressourcen). Aus dieser einen Datei werden alle PNG-Groessen abgeleitet.
+Es gibt **zwei** Quell-SVGs (beide self-contained, `viewBox="0 0 512 512"`):
 
-| Groesse   | Datei                  | Verwendung                          |
-| --------- | ---------------------- | ----------------------------------- |
-| 16×16     | `favicon-16x16.png`    | Browser-Tab (klein)                 |
-| 32×32     | `favicon-32x32.png`    | Browser-Tab / Lesezeichen           |
-| 180×180   | `apple-touch-icon.png` | iPhone PWA / Homescreen             |
-| 192×192   | `icon-192x192.png`     | PWA Manifest                        |
-| 512×512   | `icon-512x512.png`     | PWA Manifest / Splash               |
+- [`icon.svg`](./icon.svg) — abgerundetes Quadrat mit **transparenten** Ecken → Browser-Favicons.
+- [`icon-fullbleed.svg`](./icon-fullbleed.svg) — vollflaechig + **deckend**, ohne Rundung → `apple-touch-icon`.
+  iOS legt selbst eine abgerundete Maske drueber; transparente Ecken wuerden sonst auf dem
+  iPhone-Homescreen **schwarz** erscheinen.
+
+| Groesse   | Datei                  | Quelle               | Verwendung                          |
+| --------- | ---------------------- | -------------------- | ----------------------------------- |
+| 16×16     | `favicon-16x16.png`    | `icon.svg`           | Browser-Tab (klein)                 |
+| 32×32     | `favicon-32x32.png`    | `icon.svg`           | Browser-Tab / Lesezeichen           |
+| 180×180   | `apple-touch-icon.png` | `icon-fullbleed.svg` | iPhone Homescreen (deckend)         |
+| 192×192   | `icon-192x192.png`     | `icon.svg`           | PWA Manifest                        |
+| 512×512   | `icon-512x512.png`     | `icon.svg`           | PWA Manifest / Splash               |
 
 ---
 
@@ -69,30 +73,35 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
-const SRC = resolve(ROOT, "public/icons/icon.svg");
 const OUT_DIR = resolve(ROOT, "public/icons");
 
+// Zwei Quellen: abgerundet+transparent (Favicons) vs. vollflaechig+deckend (iOS).
+const SRC_ROUNDED = resolve(OUT_DIR, "icon.svg");
+const SRC_FULLBLEED = resolve(OUT_DIR, "icon-fullbleed.svg");
+
+const VIOLET = { r: 124, g: 58, b: 237 }; // #7C3AED
+const TRANSPARENT = { r: 0, g: 0, b: 0, alpha: 0 };
+
 const TARGETS = [
-  { size: 16,  file: "favicon-16x16.png" },
-  { size: 32,  file: "favicon-32x32.png" },
-  { size: 180, file: "apple-touch-icon.png" },
-  { size: 192, file: "icon-192x192.png" },
-  { size: 512, file: "icon-512x512.png" },
+  { size: 16,  file: "favicon-16x16.png",    src: SRC_ROUNDED },
+  { size: 32,  file: "favicon-32x32.png",    src: SRC_ROUNDED },
+  { size: 180, file: "apple-touch-icon.png", src: SRC_FULLBLEED, opaque: true },
+  { size: 192, file: "icon-192x192.png",     src: SRC_ROUNDED },
+  { size: 512, file: "icon-512x512.png",     src: SRC_ROUNDED },
 ];
 
 const DENSITY = 512; // hohe Render-Dichte -> scharfe Kanten, auch bei 16px
 
 await mkdir(OUT_DIR, { recursive: true });
 
-for (const { size, file } of TARGETS) {
-  await sharp(SRC, { density: DENSITY })
-    .resize(size, size, {
-      fit: "contain",
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
-    })
-    .png({ compressionLevel: 9 })
-    .toFile(resolve(OUT_DIR, file));
-  console.log(`✓  ${file.padEnd(22)} ${size}×${size}`);
+for (const { size, file, src, opaque } of TARGETS) {
+  let pipeline = sharp(src, { density: DENSITY }).resize(size, size, {
+    fit: "contain",
+    background: opaque ? VIOLET : TRANSPARENT,
+  });
+  if (opaque) pipeline = pipeline.flatten({ background: VIOLET }); // kein Alpha -> keine schwarzen Ecken auf iOS
+  await pipeline.png({ compressionLevel: 9 }).toFile(resolve(OUT_DIR, file));
+  console.log(`✓  ${file.padEnd(22)} ${size}×${size}${opaque ? "  (deckend)" : ""}`);
 }
 
 console.log("\nFertig – 5 PNG-Icons erzeugt in public/icons/");
@@ -114,6 +123,9 @@ In [`index.html`](../../index.html) direkt nach dem `<title>` einfuegen:
 
 <!-- iOS / iPadOS Homescreen -->
 <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Klausur-Trainer">
 
 <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
@@ -157,14 +169,14 @@ In [`index.html`](../../index.html) direkt nach dem `<title>` einfuegen:
 
 ## Hinweise
 
-- **`apple-touch-icon` & Maskable-Icons:** iOS legt selbst eine abgerundete Maske
-  ueber das Icon, und maskable PWA-Icons werden teils zu einem Kreis beschnitten.
-  Das aktuelle Master-SVG hat transparente Ecken (abgerundetes Quadrat). Das ist
-  fuer Tab-Favicons ideal. Falls auf manchen iOS-Versionen schwarze Ecken
-  auftauchen oder du echte `"purpose": "maskable"`-Icons brauchst, erzeuge eine
-  randlose Variante (Violet bis zum Rand, Sigma im inneren 80 %-Sicherheitsbereich –
-  das Sigma liegt hier bereits bei ~60 %, passt also) und referenziere diese
-  zusaetzlich.
+- **`apple-touch-icon` ist bewusst deckend (full-bleed):** iOS legt selbst eine
+  abgerundete Maske ueber das Homescreen-Icon. Transparente Ecken wuerden dabei
+  **schwarz**. Deshalb wird die 180×180-PNG aus [`icon-fullbleed.svg`](./icon-fullbleed.svg)
+  (Violet bis zum Rand, kein Alpha) erzeugt. Die Browser-Favicons bleiben dagegen
+  abgerundet/transparent (`icon.svg`).
+- **Maskable PWA-Icons (Android):** Brauchst du echte `"purpose": "maskable"`-Icons,
+  erzeuge die 192/512-Groessen ebenfalls aus `icon-fullbleed.svg` (Sigma liegt im
+  inneren ~60 %-Sicherheitsbereich) und setze im Manifest `"purpose": "any maskable"`.
 - **Qualitaet bei 16px:** Das Sigma ist als dicker Strich (`stroke-width 56` von 512,
   ≈ 11 % der Kantenlaenge) angelegt und bleibt dadurch auch im 16×16-Favicon klar
   lesbar. Wirken Kanten zu weich, erhoehe `DENSITY` im Script (z. B. 768 oder 1024).

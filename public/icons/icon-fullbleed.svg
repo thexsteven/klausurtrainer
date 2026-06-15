@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Klausur-Trainer · TheoInf II">
+  <title>Klausur-Trainer · TheoInf II</title>
+
+  <!-- Vollflaechige (full-bleed), DECKENDE Variante fuer iOS apple-touch-icon und
+       maskable PWA-Icons: KEINE abgerundeten Ecken, KEINE Transparenz.
+       iOS/Android legen selbst eine abgerundete Maske drueber – transparente Ecken
+       wuerden sonst auf dem Homescreen schwarz erscheinen. -->
+  <rect x="0" y="0" width="100%" height="100%" fill="#7C3AED"/>
+
+  <!-- Identisches Sigma (Σ) wie im Master-Icon, zentriert. Liegt im inneren
+       ~60 %-Sicherheitsbereich und bleibt damit auch nach iOS-Maskierung sichtbar. -->
+  <path d="M 384 128 L 128 128 L 256 256 L 128 384 L 384 384"
+        fill="none"
+        stroke="#FFFFFF"
+        stroke-width="56"
+        stroke-linejoin="round"
+        stroke-linecap="round"/>
+</svg>
