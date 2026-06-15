@@ -196,6 +196,59 @@ textarea.selfin::placeholder{color:var(--faint)}
 .pop{animation:pop .4s}
 @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
 
+/* Wide mode card (Alle Themen / Wiederholen) */
+.mode.wide{grid-column:1/-1}
+
+/* Profile button */
+.profilebtn{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-pill);padding:5px 12px 5px 6px;font-size:12.5px;font-weight:700;color:var(--ink);max-width:170px}
+.profilebtn:hover{border-color:var(--border2);background:var(--surface2)}
+.profilebtn .pfic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;
+  background:linear-gradient(135deg,var(--vi),var(--vi-d));color:#fff;flex-shrink:0}
+.profilebtn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Profile overlay + modal */
+.overlay{position:fixed;inset:0;background:rgba(6,8,14,.66);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  display:none;align-items:flex-end;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+@media(min-width:560px){.overlay{align-items:center;padding:20px}}
+.modal{width:100%;max-width:480px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--shadow);padding:20px;max-height:88vh;overflow-y:auto;
+  animation:slideup .26s cubic-bezier(.32,.72,0,1)}
+@media(min-width:560px){.modal{border-radius:var(--r-xl);animation:none}}
+@keyframes slideup{from{transform:translateY(40px);opacity:.4}to{transform:translateY(0);opacity:1}}
+.modal-h{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+.modal-h .mi{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:20px;
+  background:var(--vi-bg);color:var(--vi);flex-shrink:0}
+.modal-h h3{font-size:16.5px;font-weight:800}
+.modal-h p{font-size:12px;color:var(--muted)}
+.pf-form{display:flex;gap:9px}
+.pf-form input{flex:1;min-width:0;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r-md);
+  padding:12px 13px;font-size:16px;font-weight:600;color:var(--ink);font-family:inherit}
+.pf-form input::placeholder{color:var(--faint)}
+.pf-form input:focus{outline:none;border-color:var(--vi)}
+.pf-form .btn{flex:0 0 auto;padding:12px 16px}
+.pf-hint{font-size:12px;color:var(--muted);margin:11px 2px 2px;line-height:1.45}
+.pf-sec{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);font-weight:700;margin:18px 2px 10px}
+.pf-list{display:flex;flex-direction:column;gap:8px}
+.pf-row{display:flex;align-items:center;gap:11px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r-md);padding:10px 12px}
+.pf-row.active{border-color:var(--vi);background:var(--vi-bg)}
+.pf-av{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:grid;place-items:center;font-weight:800;font-size:14px;
+  background:linear-gradient(135deg,var(--vi),var(--vi-d));color:#fff}
+.pf-meta{flex:1;min-width:0}
+.pf-meta .nm{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:7px}
+.pf-meta .lv{font-size:11.5px;color:var(--faint);margin-top:2px}
+.pf-tag{font-size:9px;font-weight:800;color:#160b2e;background:var(--vi);border-radius:99px;padding:2px 7px;letter-spacing:.03em;flex-shrink:0}
+.pf-use{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--vi);background:var(--vi-bg);border:none;border-radius:var(--r-pill);padding:8px 13px}
+.pf-use:active{transform:translateY(1px)}
+.pf-check{flex:0 0 auto;width:28px;text-align:center;color:var(--gr);font-weight:800;font-size:16px}
+.pf-del{flex:0 0 auto;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--faint);background:var(--bg2);font-size:14px}
+.pf-del:hover{color:var(--red)}
+.modal-close{width:100%;margin-top:16px;padding:12px;border-radius:var(--r-md);background:var(--surface2);
+  border:1px solid var(--border);color:var(--ink);font-weight:700;font-size:14px}
+.modal-close:hover{border-color:var(--border2)}
+
 .hidden{display:none!important}
 .footer{text-align:center;color:var(--faint);font-size:11.5px;margin-top:24px;line-height:1.7}
 .footer a{color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
@@ -209,6 +262,9 @@ textarea.selfin::placeholder{color:var(--faint)}
     <div class="title"><h1>Klausur-Trainer</h1><p>TheoInf II · Laufzeiten · Rekursion · Pseudocode · Hashing</p></div>
     <div class="spacer"></div>
     <div class="stats" id="hdrStats"></div>
+    <button type="button" class="profilebtn" id="profileBtn" aria-label="Profil wechseln">
+      <span class="pfic" id="pfAvatar">★</span><span id="pfBtnName">Gast</span>
+    </button>
   </header>
 
   <!-- HOME -->
@@ -221,9 +277,14 @@ textarea.selfin::placeholder{color:var(--faint)}
         </div>
         <div style="font-size:12px;color:var(--faint)" id="lvlText"></div>
       </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;margin-bottom:6px">
+        <span style="font-size:13px;color:var(--muted);font-weight:600">Gemeisterte Fragen</span>
+        <b id="masteredText" style="font-size:12.5px;color:var(--vi);font-variant-numeric:tabular-nums">0 / 0</b>
+      </div>
+      <div class="lvlbar"><i id="masteredFill" style="width:0%;background:linear-gradient(90deg,var(--vi),var(--vi-d))"></i></div>
     </div>
 
-    <div class="section-h">Übungsmodi · 4 Klausurthemen</div>
+    <div class="section-h">Übungsmodi · 7 Klausurthemen</div>
     <div class="modes" id="modeGrid"></div>
 
     <div class="section-h">Auszeichnungen</div>
@@ -267,6 +328,24 @@ textarea.selfin::placeholder{color:var(--faint)}
     </div>
   </div>
 
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="overlay" id="pfOverlay">
+  <div class="modal" id="pfModal">
+    <div class="modal-h">
+      <div class="mi">👤</div>
+      <div><h3>Spielerprofil</h3><p>Dein Fortschritt wird lokal pro Name gespeichert</p></div>
+    </div>
+    <div class="pf-form">
+      <input id="pfName" type="text" maxlength="20" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Dein Name…">
+      <button type="button" class="btn primary" id="pfSave">Speichern</button>
+    </div>
+    <div class="pf-hint" id="pfHint"></div>
+    <div class="pf-sec">Profile</div>
+    <div class="pf-list" id="pfList"></div>
+    <button type="button" class="modal-close" id="pfClose">Schließen</button>
+  </div>
 </div>
 
 <script>
@@ -469,6 +548,13 @@ const MODES={
  pseudo:{name:'Pseudocode & Beschreiben', icon:'✍️', col:'vi', kind:'self', bank:SELF, desc:'Selbst lösen, Musterlösung aufdecken, ehrlich bewerten (Selbst-Check).'},
 };
 
+/* ============ FRAGEN-REGISTER (stabile IDs für „Alle Themen" & „Falsche wiederholen") ============ */
+const REG={};
+Object.keys(MODES).forEach(mk=>{
+ MODES[mk].bank.forEach((it,idx)=>{ const id=mk+':'+idx; it._id=id; REG[id]={mode:mk,item:it}; });
+});
+const TOTALQ=Object.keys(REG).length;
+
 /* ============ BADGES ============ */
 const BADGES=[
  {id:'first', e:'🚀', n:'Erster Lauf', d:'Erste Session beendet', chk:s=>s.sessions>=1},
@@ -479,14 +565,32 @@ const BADGES=[
  {id:'lvl5', e:'⭐', n:'Level 5', d:'Level 5 erreicht', chk:s=>levelInfo(s.xp).level>=5},
  {id:'streak3', e:'📅', n:'3-Tage-Streak', d:'An 3 Tagen geübt', chk:s=>s.dayStreak>=3},
  {id:'hash20', e:'#️⃣', n:'Hash-Profi', d:'20 Hashing-Fragen richtig', chk:s=>s.perMode.hash&&s.perMode.hash.correct>=20},
+ {id:'fullmaster', e:'🏆', n:'Komplett', d:'Jede Frage 1× gemeistert', chk:s=>s.mastered.length>=TOTALQ},
 ];
 
 /* ============ STATE ============ */
-const KEY='theoKlausurTrainer_v1';
-const defState={xp:0,totalCorrect:0,sessions:0,dayStreak:0,lastPlay:'',bestComboEver:0,hadPerfect:false,perMode:{},badges:[]};
+const KEY='theoKlausurTrainer_v1';            // Gast / unbenannter Fortschritt
+const PKEY='theoKlausurTrainer_profiles_v1';  // { name: stateObject }
+const AKEY='theoKlausurTrainer_active_v1';    // Name des aktiven Profils ('' = Gast)
+const defState={xp:0,totalCorrect:0,sessions:0,dayStreak:0,lastPlay:'',bestComboEver:0,hadPerfect:false,perMode:{},badges:[],mastered:[],wrong:[]};
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function readJSON(k,fb){try{const r=localStorage.getItem(k);return r?JSON.parse(r):fb;}catch(e){return fb;}}
+function writeJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function loadProfiles(){const p=readJSON(PKEY,{});return(p&&typeof p==='object')?p:{};}
+function saveProfiles(p){writeJSON(PKEY,p);}
+function activeName(){try{return localStorage.getItem(AKEY)||'';}catch(e){return'';}}
+function setActiveName(n){try{n?localStorage.setItem(AKEY,n):localStorage.removeItem(AKEY);}catch(e){}}
 let state=load();
-function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign({},defState,JSON.parse(r));}catch(e){}return Object.assign({},defState);}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function load(){
+ const n=activeName();
+ if(n){const p=loadProfiles();if(p[n])return Object.assign(clone(defState),p[n]);}
+ return Object.assign(clone(defState),readJSON(KEY,{}));   // Gast
+}
+function save(){
+ const n=activeName();
+ if(n){const p=loadProfiles();p[n]=state;saveProfiles(p);}
+ else writeJSON(KEY,state);
+}
 
 function levelInfo(xp){let lvl=1,need=100,acc=0;while(xp>=acc+need){acc+=need;lvl++;need=100+(lvl-1)*25;}return{level:lvl,into:xp-acc,need:need};}
 
@@ -494,33 +598,48 @@ function levelInfo(xp){let lvl=1,need=100,acc=0;while(xp>=acc+need){acc+=need;lv
 let sess=null;
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
+/* Pseudo-Modi: „alle" (alle Themen gemischt) und „wiederholen" (zuletzt falsche) */
+function modeMeta(id){
+ if(id==='alle')return{name:'Alle Themen',icon:'🎲',col:'gr',desc:'Fragen aus allen 7 Themen – bunt gemischt, wie in der Klausur.'};
+ if(id==='wiederholen')return{name:'Falsche wiederholen',icon:'🔁',col:'vi',desc:'Nur die Fragen, die du zuletzt falsch hattest – gezielt nacharbeiten.'};
+ return MODES[id];
+}
+function modeTitle(id){return modeMeta(id).name;}
+function buildPool(id){
+ if(id==='alle'){const all=[];Object.keys(MODES).forEach(mk=>MODES[mk].bank.forEach(it=>all.push({mode:mk,item:it})));return all;}
+ if(id==='wiederholen')return state.wrong.map(qid=>REG[qid]).filter(Boolean).map(r=>({mode:r.mode,item:r.item}));
+ return MODES[id].bank.map(it=>({mode:id,item:it}));
+}
+
 function startSession(mode,count){
- const m=MODES[mode];
- let pool=shuffle(m.bank);
- if(count!==Infinity && count<pool.length) pool=pool.slice(0,count);
- else if(count!==Infinity){ // need more than bank → repeat
-   while(pool.length<count) pool=pool.concat(shuffle(m.bank));
-   pool=pool.slice(0,count);
+ const base=shuffle(buildPool(mode));
+ if(!base.length){goHome();return;}
+ let pool=base;
+ if(count!==Infinity){
+   if(count<base.length) pool=base.slice(0,count);
+   else{ pool=base.slice(); while(pool.length<count) pool=pool.concat(shuffle(base)); pool=pool.slice(0,count); }
  }
- sess={mode:mode,pool:pool,i:0,count:(count===Infinity?Infinity:pool.length),correct:0,combo:0,bestCombo:0,startXp:state.xp,_lastGain:0};
+ sess={modeId:mode,base:base,pool:pool,i:0,count:(count===Infinity?Infinity:pool.length),correct:0,combo:0,bestCombo:0,startXp:state.xp,_lastGain:0,_p:0};
  $('home').classList.add('hidden');$('results').classList.add('hidden');$('train').classList.remove('hidden');
  nextQuestion();
 }
+function startWiederholen(){ const n=state.wrong.length; if(!n){goHome();return;} startSession('wiederholen',n); }
+
 function nextQuestion(){
  if(sess.count!==Infinity && sess.i>=sess.count){endSession();return;}
- const m=MODES[sess.mode];
- let item;
- if(sess.count===Infinity){ if(!sess.pool.length||sess._p===undefined||sess._p>=sess.pool.length){sess.pool=shuffle(m.bank);sess._p=0;} item=sess.pool[sess._p++]; }
- else item=sess.pool[sess.i];
+ let entry;
+ if(sess.count===Infinity){ if(sess._p>=sess.pool.length){sess.pool=shuffle(sess.base);sess._p=0;} entry=sess.pool[sess._p++]; }
+ else entry=sess.pool[sess.i];
  sess.i++;
+ sess.curMode=entry.mode; sess.curId=entry.item._id;
+ const m=MODES[entry.mode];
  updateBar();
- if(m.kind==='mc') renderMC(item,m);
- else if(m.kind==='steps') renderSteps(item,m);
- else if(m.kind==='self') renderSelf(item,m);
+ if(m.kind==='mc') renderMC(entry.item,m);
+ else if(m.kind==='steps') renderSteps(entry.item,m);
+ else if(m.kind==='self') renderSelf(entry.item,m);
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function updateBar(){
- const tag=MODES[sess.mode].col==='gr'?'':'';
  $('qCount').textContent=sess.count===Infinity?('#'+sess.i):(sess.i+' / '+sess.count);
  $('progFill').style.width=sess.count===Infinity?'100%':Math.round((sess.i-1)/sess.count*100)+'%';
  $('comboBadge').textContent=sess.combo>=2?('🔥 '+sess.combo):'';
@@ -529,17 +648,22 @@ function updateBar(){
 /* ---- scoring ---- */
 function answered(ok,mul){
  mul=mul===undefined?1:mul;
- const m=MODES[sess.mode];
- if(!state.perMode[sess.mode])state.perMode[sess.mode]={answered:0,correct:0};
- state.perMode[sess.mode].answered++;
+ const mk=sess.curMode, id=sess.curId;
+ if(!state.perMode[mk])state.perMode[mk]={answered:0,correct:0};
+ state.perMode[mk].answered++;
  if(ok){
    sess.correct++;state.totalCorrect++;sess.combo++;
    if(sess.combo>sess.bestCombo)sess.bestCombo=sess.combo;
    if(sess.combo>state.bestComboEver)state.bestComboEver=sess.combo;
-   state.perMode[sess.mode].correct++;
+   state.perMode[mk].correct++;
+   if(id&&!state.mastered.includes(id))state.mastered.push(id);
+   const wi=state.wrong.indexOf(id);if(wi>=0)state.wrong.splice(wi,1);
    const gain=Math.round((10+Math.min(sess.combo,6)*2)*mul);
    sess._lastGain=gain;state.xp+=gain;
- } else { sess.combo=0; sess._lastGain=0; }
+ } else {
+   sess.combo=0; sess._lastGain=0;
+   if(id&&!state.wrong.includes(id))state.wrong.push(id);
+ }
  save();renderHeader();
 }
 
@@ -675,7 +799,7 @@ function endSession(){
  updateStreak();save();
  $('train').classList.add('hidden');$('results').classList.remove('hidden');
  const pe=$('rPct');pe.textContent=pct+'%';pe.className='pct '+(pct>=80?'good':pct>=50?'midc':'low');
- $('rSub').textContent=MODES[sess.mode].name+' · '+(pct>=80?'Stark!':pct>=50?'Solide — dranbleiben.':'Übung macht den Meister.');
+ $('rSub').textContent=modeTitle(sess.modeId)+' · '+(pct>=80?'Stark!':pct>=50?'Solide — dranbleiben.':'Übung macht den Meister.');
  $('rCorrect').textContent=sess.correct;$('rTotal').textContent=sess.i;$('rBest').textContent=sess.bestCombo;
  $('rBadges').innerHTML=newOnes.map(id=>{const b=BADGES.find(x=>x.id===id);return '<div class="badge un pop"><div class="e">'+b.e+'</div><div class="n">'+b.n+'</div></div>';}).join('');
  renderHeader();window.scrollTo({top:0,behavior:'smooth'});
@@ -699,14 +823,29 @@ function renderHeader(){
  $('lvlNum').textContent=li.level;
  $('lvlFill').style.width=Math.round(li.into/li.need*100)+'%';
  $('lvlText').textContent=li.into+' / '+li.need+' XP zum nächsten Level';
+ const mc=state.mastered.length;
+ $('masteredText').textContent=mc+' / '+TOTALQ;
+ $('masteredFill').style.width=Math.round(mc/TOTALQ*100)+'%';
+}
+function makeModeCard(m,acc,wide){
+ const el=document.createElement('button');el.type='button';el.className='mode '+m.col+(wide?' wide':'');
+ el.innerHTML='<span class="edge"></span><div class="ic">'+m.icon+'</div><h3>'+m.name+'</h3><p>'+m.desc+'</p><div class="acc">'+acc+'</div>';
+ return el;
 }
 function renderModes(){
  const grid=$('modeGrid');grid.innerHTML='';
+ // Alle Themen (gemischt) – immer verfügbar
+ const aCard=makeModeCard(modeMeta('alle'),state.mastered.length+' / '+TOTALQ+' gemeistert',true);
+ aCard.onclick=()=>openSetup('alle');grid.appendChild(aCard);
+ // Falsche wiederholen – nur wenn es offene falsche Fragen gibt
+ if(state.wrong.length){
+   const wCard=makeModeCard(modeMeta('wiederholen'),state.wrong.length+' Frage'+(state.wrong.length===1?'':'n')+' offen',true);
+   wCard.onclick=startWiederholen;grid.appendChild(wCard);
+ }
  Object.entries(MODES).forEach(([id,m])=>{
    const pm=state.perMode[id];
    const acc=pm&&pm.answered?(Math.round(pm.correct/pm.answered*100)+'% · '+pm.answered+' Aufgaben'):'noch nicht geübt';
-   const el=document.createElement('button');el.className='mode '+m.col;
-   el.innerHTML='<span class="edge"></span><div class="ic">'+m.icon+'</div><h3>'+m.name+'</h3><p>'+m.desc+'</p><div class="acc">'+acc+'</div>';
+   const el=makeModeCard(m,acc,false);
    el.onclick=()=>openSetup(id);
    grid.appendChild(el);
  });
@@ -716,7 +855,8 @@ function renderBadges(){
    return '<div class="badge '+(un?'un':'')+'"><div class="e">'+b.e+'</div><div class="n">'+b.n+'</div><div class="d">'+b.d+'</div></div>';}).join('');
 }
 function openSetup(mode){
- const m=MODES[mode];
+ if(mode==='wiederholen'){startWiederholen();return;}
+ const m=modeMeta(mode);
  $('home').classList.add('hidden');$('results').classList.add('hidden');$('train').classList.remove('hidden');
  $('progFill').style.width='0%';$('qCount').textContent='';$('comboBadge').textContent='';
  const host=$('qHost');
@@ -739,13 +879,66 @@ function goHome(){
  renderHeader();renderModes();renderBadges();window.scrollTo({top:0,behavior:'smooth'});
 }
 
+/* ============ PROFILE (lokale Spielerprofile) ============ */
+function initials(n){const t=(n||'').trim();if(!t)return'★';const p=t.split(/\s+/);return((p[0][0]||'')+(p.length>1?p[p.length-1][0]:'')).toUpperCase();}
+function updateProfileBtn(){const n=activeName();$('pfBtnName').textContent=n||'Gast';$('pfAvatar').textContent=n?initials(n):'★';}
+function openProfiles(){$('pfName').value='';renderProfiles();$('pfOverlay').classList.add('show');setTimeout(()=>{try{$('pfName').focus();}catch(e){}},120);}
+function closeProfiles(){$('pfOverlay').classList.remove('show');}
+function profileRow(id,label,st,isActive){
+ const li=levelInfo((st&&st.xp)||0),guest=id==='';
+ const mc=(st&&st.mastered&&st.mastered.length)||0;
+ return '<div class="pf-row'+(isActive?' active':'')+'">'+
+   '<div class="pf-av">'+(guest?'★':esc(initials(label)))+'</div>'+
+   '<div class="pf-meta"><div class="nm">'+esc(label)+(isActive?'<span class="pf-tag">AKTIV</span>':'')+'</div>'+
+   '<div class="lv">Level '+li.level+' · '+((st&&st.xp)||0)+' XP · '+mc+'/'+TOTALQ+' gemeistert</div></div>'+
+   (isActive?'<span class="pf-check">✓</span>':'<button type="button" class="pf-use" data-use="'+esc(id)+'">Wechseln</button>')+
+   (guest?'':'<button type="button" class="pf-del" data-del="'+esc(id)+'" aria-label="Profil löschen">🗑</button>')+
+   '</div>';
+}
+function renderProfiles(){
+ const cur=activeName(),profs=loadProfiles();
+ const names=Object.keys(profs).sort((a,b)=>a.localeCompare(b,'de'));
+ $('pfHint').textContent=cur
+   ?('Aktiv: '+cur+' — dein Fortschritt wird unter diesem Namen gespeichert.')
+   :'Du spielst als Gast. Gib einen Namen ein, um deinen aktuellen Fortschritt unter diesem Namen zu sichern.';
+ let html=profileRow('','Gast',readJSON(KEY,{}),cur==='');
+ names.forEach(n=>{html+=profileRow(n,n,profs[n],cur===n);});
+ $('pfList').innerHTML=html;
+ $('pfList').querySelectorAll('[data-use]').forEach(b=>b.onclick=()=>switchProfile(b.getAttribute('data-use')));
+ $('pfList').querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>{e.stopPropagation();deleteProfile(b.getAttribute('data-del'));});
+}
+function switchProfile(name){save();setActiveName(name);state=load();updateProfileBtn();closeProfiles();goHome();}
+function submitProfileName(){
+ const raw=$('pfName').value.trim().replace(/\s+/g,' ').replace(/[<>"&]/g,'');
+ if(!raw){$('pfName').focus();return;}
+ if(raw.toLowerCase()==='gast'){alert('„Gast" ist reserviert – bitte einen anderen Namen wählen.');return;}
+ const profs=loadProfiles();
+ if(profs[raw]){switchProfile(raw);return;}      // existiert → wechseln
+ save();                                          // aktuellen Stand sichern
+ profs[raw]=clone(state);                          // aktuelles Level unter dem Namen speichern
+ saveProfiles(profs);
+ setActiveName(raw);state=load();updateProfileBtn();closeProfiles();goHome();
+}
+function deleteProfile(name){
+ if(!confirm('Profil „'+name+'" wirklich löschen? Der gespeicherte Fortschritt geht verloren.'))return;
+ const profs=loadProfiles();delete profs[name];saveProfiles(profs);
+ if(activeName()===name){setActiveName('');state=load();updateProfileBtn();goHome();}
+ renderProfiles();
+}
+
 /* ============ EVENTS ============ */
 $('quitBtn').onclick=()=>{ if(sess&&sess.i>0&&!(sess.count!==Infinity&&sess.i>sess.count)){ if(sess.count===Infinity){endSession();}else{endSession();} } else goHome(); };
 $('homeBtn').onclick=goHome;
-$('againBtn').onclick=()=>openSetup(sess.mode);
-$('resetBtn').onclick=()=>{if(confirm('Wirklich den gesamten Fortschritt (XP, Streak, Badges) löschen?')){state=Object.assign({},defState,{perMode:{},badges:[]});save();goHome();}};
+$('againBtn').onclick=()=>{ if(sess.modeId==='wiederholen')startWiederholen(); else openSetup(sess.modeId); };
+$('resetBtn').onclick=()=>{const who=activeName()||'Gast';if(confirm('Wirklich den gesamten Fortschritt von „'+who+'" (XP, Streak, Badges, gemeisterte Fragen) löschen?')){state=clone(defState);save();goHome();}};
+$('profileBtn').onclick=openProfiles;
+$('pfClose').onclick=closeProfiles;
+$('pfSave').onclick=submitProfileName;
+$('pfOverlay').onclick=e=>{if(e.target===$('pfOverlay'))closeProfiles();};
+$('pfName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitProfileName();}});
 
 /* ============ INIT ============ */
+updateProfileBtn();
 goHome();
 </script>
 </body>
