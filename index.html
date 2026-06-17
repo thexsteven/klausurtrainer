@@ -118,6 +118,19 @@ header{display:flex;align-items:center;gap:13px;margin-bottom:16px;flex-wrap:wra
 .qtag{display:inline-block;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;
   color:var(--vi);background:var(--vi-bg);padding:4px 10px;border-radius:var(--r-pill);margin-bottom:13px}
 .qtag.gr{color:var(--gr);background:var(--gr-bg)}
+/* Merken / Bookmark-Toggle */
+.qhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:13px}
+.qhead .qtag{margin-bottom:0}
+.markbtn{flex-shrink:0;width:40px;height:40px;margin:-6px -4px 0 0;border-radius:11px;display:grid;place-items:center;
+  background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+  transition:transform .12s,border-color .14s,background .14s,color .14s}
+.markbtn:hover{border-color:var(--vi);background:var(--bg2);color:var(--vi)}
+.markbtn:active{transform:scale(.9)}
+.markbtn.on{background:var(--vi-bg);border-color:var(--vi);color:var(--vi)}
+.markbtn.on .bm path{fill:var(--vi)}
+.markbtn .bm{pointer-events:none}
+.markbtn.pulse{animation:markpop .34s}
+@keyframes markpop{0%{transform:scale(1)}38%{transform:scale(1.24)}100%{transform:scale(1)}}
 .prompt{font-size:16.5px;font-weight:600;line-height:1.5;margin-bottom:4px}
 .prompt .big{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:600}
 pre.code{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 15px;
@@ -572,7 +585,7 @@ const BADGES=[
 const KEY='theoKlausurTrainer_v1';            // Gast / unbenannter Fortschritt
 const PKEY='theoKlausurTrainer_profiles_v1';  // { name: stateObject }
 const AKEY='theoKlausurTrainer_active_v1';    // Name des aktiven Profils ('' = Gast)
-const defState={xp:0,totalCorrect:0,sessions:0,dayStreak:0,lastPlay:'',bestComboEver:0,hadPerfect:false,perMode:{},badges:[],mastered:[],wrong:[]};
+const defState={xp:0,totalCorrect:0,sessions:0,dayStreak:0,lastPlay:'',bestComboEver:0,hadPerfect:false,perMode:{},badges:[],mastered:[],wrong:[],marked:[]};
 function clone(o){return JSON.parse(JSON.stringify(o));}
 function readJSON(k,fb){try{const r=localStorage.getItem(k);return r?JSON.parse(r):fb;}catch(e){return fb;}}
 function writeJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
@@ -602,12 +615,14 @@ function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor
 function modeMeta(id){
  if(id==='alle')return{name:'Alle Themen',icon:'🎲',col:'gr',desc:'Fragen aus allen 7 Themen – bunt gemischt, wie in der Klausur.'};
  if(id==='wiederholen')return{name:'Falsche wiederholen',icon:'🔁',col:'vi',desc:'Nur die Fragen, die du zuletzt falsch hattest – gezielt nacharbeiten.'};
+ if(id==='markiert')return{name:'Markierte Fragen',icon:'🔖',col:'vi',desc:'Nur die Fragen, die du dir markiert hast – gezielt wiederholen.'};
  return MODES[id];
 }
 function modeTitle(id){return modeMeta(id).name;}
 function buildPool(id){
  if(id==='alle'){const all=[];Object.keys(MODES).forEach(mk=>MODES[mk].bank.forEach(it=>all.push({mode:mk,item:it})));return all;}
  if(id==='wiederholen')return state.wrong.map(qid=>REG[qid]).filter(Boolean).map(r=>({mode:r.mode,item:r.item}));
+ if(id==='markiert')return state.marked.map(qid=>REG[qid]).filter(Boolean).map(r=>({mode:r.mode,item:r.item}));
  return MODES[id].bank.map(it=>({mode:id,item:it}));
 }
 
@@ -624,6 +639,7 @@ function startSession(mode,count){
  nextQuestion();
 }
 function startWiederholen(){ const n=state.wrong.length; if(!n){goHome();return;} startSession('wiederholen',n); }
+function startMarkiert(){ const n=state.marked.length; if(!n){goHome();return;} startSession('markiert',n); }
 
 function nextQuestion(){
  if(sess.count!==Infinity && sess.i>=sess.count){endSession();return;}
@@ -667,6 +683,29 @@ function answered(ok,mul){
  save();renderHeader();
 }
 
+/* ---- Merken / Markieren (Bookmark-Toggle auf jeder Fragenkarte) ---- */
+const BOOKMARK_SVG='<svg class="bm" viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" focusable="false"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function isMarked(id){return state.marked.indexOf(id)>=0;}
+function markBtnHtml(id){
+ const on=isMarked(id),lbl=on?'Markierung entfernen':'Frage merken';
+ return '<button type="button" class="markbtn'+(on?' on':'')+'" id="markBtn" aria-pressed="'+on+'" aria-label="'+lbl+'" title="'+lbl+'">'+BOOKMARK_SVG+'</button>';
+}
+function qHead(tagcls,label,id){
+ return '<div class="qhead"><span class="qtag '+tagcls+'">'+label+'</span>'+markBtnHtml(id)+'</div>';
+}
+function wireMarkBtn(id){
+ const b=$('markBtn');if(!b)return;
+ b.onclick=()=>{
+   const i=state.marked.indexOf(id),on=i<0;
+   if(on)state.marked.push(id);else state.marked.splice(i,1);
+   b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);
+   const lbl=on?'Markierung entfernen':'Frage merken';
+   b.setAttribute('aria-label',lbl);b.setAttribute('title',lbl);
+   b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse');
+   save();
+ };
+}
+
 /* ---- MC rendering ---- */
 function renderMC(q,m){
  const host=$('qHost');
@@ -676,8 +715,9 @@ function renderMC(q,m){
  else if(m.code){ promptHtml='<div class="prompt">Bestimme die Laufzeit:</div><pre class="code">'+hl(q.code)+'</pre>'; }
  else { promptHtml='<div class="prompt">'+q.q+'</div>'; }
  const keys=['A','B','C','D','E'];
- host.innerHTML='<div class="qcard"><span class="qtag '+tagcls+'">'+m.icon+' '+m.name+'</span>'+promptHtml+
+ host.innerHTML='<div class="qcard">'+qHead(tagcls,m.icon+' '+m.name,q._id)+promptHtml+
    '<div class="opts" id="opts"></div><div id="fbZone"></div></div>';
+ wireMarkBtn(q._id);
  const opts=$('opts');
  q.o.forEach((txt,i)=>{
    const b=document.createElement('button');b.className='opt';
@@ -698,10 +738,11 @@ function renderMC(q,m){
 /* ---- STEPS rendering (Rekursionsbaum) ---- */
 function renderSteps(item,m){
  const host=$('qHost');
- host.innerHTML='<div class="qcard"><span class="qtag gr">'+m.icon+' '+m.name+'</span>'+
+ host.innerHTML='<div class="qcard">'+qHead('gr',m.icon+' '+m.name,item._id)+
    '<div class="recur">'+item.rec+'</div>'+
    (item.sub?'<div class="selfhint" style="text-align:center;margin-top:-6px">'+item.sub+'</div>':'')+
    '<div id="stepZone"></div><div id="fbZone"></div></div>';
+ wireMarkBtn(item._id);
  let s=0, allOk=true;
  const keys=['A','B','C','D'];
  function drawStep(){
@@ -742,12 +783,13 @@ function renderSteps(item,m){
 /* ---- SELF-CHECK rendering ---- */
 function renderSelf(item,m){
  const host=$('qHost');
- host.innerHTML='<div class="qcard"><span class="qtag">'+m.icon+' '+item.tag+'</span>'+
+ host.innerHTML='<div class="qcard">'+qHead('',m.icon+' '+item.tag,item._id)+
    '<div class="selftask">'+item.task+'</div>'+
    '<div class="selfhint">Löse es zuerst selbst — auf Papier oder im Feld unten. Dann Musterlösung aufdecken und ehrlich bewerten.</div>'+
    '<textarea class="selfin" id="selfin" placeholder="Optional: hier tippen…"></textarea>'+
    '<div class="nextrow"><button class="btn primary full" id="revealBtn">Musterlösung zeigen</button></div>'+
    '<div id="solZone"></div><div id="fbZone"></div></div>';
+ wireMarkBtn(item._id);
  $('revealBtn').onclick=()=>{
    $('revealBtn').parentElement.remove();
    let sol='<div class="sol"><h4>Musterlösung</h4>'+(item.desc||'');
@@ -842,6 +884,11 @@ function renderModes(){
    const wCard=makeModeCard(modeMeta('wiederholen'),state.wrong.length+' Frage'+(state.wrong.length===1?'':'n')+' offen',true);
    wCard.onclick=startWiederholen;grid.appendChild(wCard);
  }
+ // Markierte Fragen – nur wenn welche markiert sind
+ if(state.marked.length){
+   const mCard=makeModeCard(modeMeta('markiert'),state.marked.length+' Frage'+(state.marked.length===1?'':'n')+' markiert',true);
+   mCard.onclick=startMarkiert;grid.appendChild(mCard);
+ }
  Object.entries(MODES).forEach(([id,m])=>{
    const pm=state.perMode[id];
    const acc=pm&&pm.answered?(Math.round(pm.correct/pm.answered*100)+'% · '+pm.answered+' Aufgaben'):'noch nicht geübt';
@@ -856,6 +903,7 @@ function renderBadges(){
 }
 function openSetup(mode){
  if(mode==='wiederholen'){startWiederholen();return;}
+ if(mode==='markiert'){startMarkiert();return;}
  const m=modeMeta(mode);
  $('home').classList.add('hidden');$('results').classList.add('hidden');$('train').classList.remove('hidden');
  $('progFill').style.width='0%';$('qCount').textContent='';$('comboBadge').textContent='';
@@ -929,7 +977,7 @@ function deleteProfile(name){
 /* ============ EVENTS ============ */
 $('quitBtn').onclick=()=>{ if(sess&&sess.i>0&&!(sess.count!==Infinity&&sess.i>sess.count)){ if(sess.count===Infinity){endSession();}else{endSession();} } else goHome(); };
 $('homeBtn').onclick=goHome;
-$('againBtn').onclick=()=>{ if(sess.modeId==='wiederholen')startWiederholen(); else openSetup(sess.modeId); };
+$('againBtn').onclick=()=>{ if(sess.modeId==='wiederholen')startWiederholen(); else if(sess.modeId==='markiert')startMarkiert(); else openSetup(sess.modeId); };
 $('resetBtn').onclick=()=>{const who=activeName()||'Gast';if(confirm('Wirklich den gesamten Fortschritt von „'+who+'" (XP, Streak, Badges, gemeisterte Fragen) löschen?')){state=clone(defState);save();goHome();}};
 $('profileBtn').onclick=openProfiles;
 $('pfClose').onclick=closeProfiles;
